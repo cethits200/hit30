@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HIT30</title>
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark}
+body{margin:0;background:#0c0c0f;color:#fff;min-height:100vh;display:grid;place-items:center}
+.card{width:min(92vw,430px);padding:28px;border:1px solid #333;border-radius:24px;background:#17171c;box-shadow:0 18px 50px #0008}
+h1{font-size:42px;letter-spacing:.08em;margin:.1em 0}.sub{color:#aaa;margin-top:-8px}
+button{width:100%;padding:16px;border:0;border-radius:14px;font-weight:800;font-size:18px;margin-top:12px;cursor:pointer}
+.primary{background:#fff;color:#111}.secondary{background:#2b2b33;color:#fff}
+.status{margin:20px 0;padding:14px;border-radius:12px;background:#202027;min-height:44px;display:flex;align-items:center}
+.timer{font-variant-numeric:tabular-nums;font-size:56px;font-weight:900;text-align:center;margin:18px 0}
+.small{font-size:13px;color:#a9a9b2;line-height:1.45}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<main class="card">
+<h1>HIT30</h1>
+<div class="sub">Adivina la canción</div>
+<div id="timer" class="timer">30</div>
+<div id="status" class="status">Preparando tarjeta...</div>
+<button id="login" class="primary hidden">Conectar con Spotify</button>
+<button id="play" class="primary hidden">▶ Reproducir 30 segundos</button>
+<button id="pause" class="secondary hidden">■ Parar</button>
+<p class="small">La pantalla no muestra título ni artista. La respuesta está en el reverso de la tarjeta.</p>
+</main>
+<script>
+const CLIENT_ID = "PON_AQUI_TU_SPOTIFY_CLIENT_ID";
+const REDIRECT_URI = location.origin + location.pathname;
+const SCOPES = ["user-read-playback-state","user-modify-playback-state"];
+const TRACKS = {
+ "001":"spotify:track:7obdw7ZGr6l1GqSBkFiY11",
+ "002":"spotify:track:1IWzfq3sLedGQ3fb2hAMBA",
+ "003":"spotify:track:1Je1IMUlBXcx1Fz0WE7oPT",
+ "004":"spotify:track:2goLsvvODILDzeeiT4dAoR",
+ "005":"spotify:track:0Ph6L4l8dYUuXFmb71Ajnd"
+};
+const $=id=>document.getElementById(id);
+const cardId = new URLSearchParams(location.search).get("c");
+let stopTimer=null, tickTimer=null;
+
+function b64url(bytes){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function sha256(s){return new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))}
+function randomVerifier(){return b64url(crypto.getRandomValues(new Uint8Array(64)))}
+function show(msg){$("status").textContent=msg}
+
+async function login(){
+ if(CLIENT_ID.startsWith("PON_AQUI")){show("Falta configurar el Client ID de Spotify."); return}
+ const verifier=randomVerifier(); sessionStorage.setItem("verifier",verifier);
+ const challenge=b64url(await sha256(verifier));
+ const state=crypto.randomUUID(); sessionStorage.setItem("oauth_state",state);
+ sessionStorage.setItem("return_card",cardId||"");
+ const p=new URLSearchParams({
+   client_id:CLIENT_ID,response_type:"code",redirect_uri:REDIRECT_URI,
+   code_challenge_method:"S256",code_challenge:challenge,state,
+   scope:SCOPES.join(" ")
+ });
+ location.href="https://accounts.spotify.com/authorize?"+p;
+}
+async function exchangeCode(code){
+ const verifier=sessionStorage.getItem("verifier");
+ const body=new URLSearchParams({
+   client_id:CLIENT_ID,grant_type:"authorization_code",code,
+   redirect_uri:REDIRECT_URI,code_verifier:verifier
+ });
+ const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});
+ if(!r.ok) throw new Error("No se pudo completar el acceso a Spotify");
+ const t=await r.json();
+ localStorage.setItem("access_token",t.access_token);
+ localStorage.setItem("expires_at",Date.now()+t.expires_in*1000);
+ if(t.refresh_token) localStorage.setItem("refresh_token",t.refresh_token);
+ history.replaceState({}, "", REDIRECT_URI+"?c="+encodeURIComponent(sessionStorage.getItem("return_card")||cardId||""));
+}
+async function refreshToken(){
+ const rt=localStorage.getItem("refresh_token"); if(!rt) return false;
+ const body=new URLSearchParams({client_id:CLIENT_ID,grant_type:"refresh_token",refresh_token:rt});
+ const r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body});
+ if(!r.ok) return false;
+ const t=await r.json(); localStorage.setItem("access_token",t.access_token);
+ localStorage.setItem("expires_at",Date.now()+t.expires_in*1000);
+ if(t.refresh_token) localStorage.setItem("refresh_token",t.refresh_token);
+ return true;
+}
+async function token(){
+ if(Date.now() < +(localStorage.getItem("expires_at")||0)-30000) return localStorage.getItem("access_token");
+ if(await refreshToken()) return localStorage.getItem("access_token");
+ return null;
+}
+async function api(path,opt={}){
+ let tk=await token(); if(!tk) throw new Error("LOGIN");
+ const r=await fetch("https://api.spotify.com/v1"+path,{...opt,headers:{Authorization:"Bearer "+tk,"Content-Type":"application/json",...(opt.headers||{})}});
+ if(r.status===401 && await refreshToken()) return api(path,opt);
+ return r;
+}
+async function device(){
+ const r=await api("/me/player/devices"); if(!r.ok) return null;
+ const d=(await r.json()).devices||[];
+ return d.find(x=>x.is_active)||d[0]||null;
+}
+async function pause(){
+ clearTimeout(stopTimer); clearInterval(tickTimer);
+ try{await api("/me/player/pause",{method:"PUT"});}catch(e){}
+ $("timer").textContent="30"; show("Reproducción detenida.");
+ $("play").classList.remove("hidden"); $("pause").classList.add("hidden");
+}
+async function play30(){
+ if(!TRACKS[cardId]){show("Tarjeta desconocida.");return}
+ try{
+   const d=await device();
+   if(!d){show("No encuentro un dispositivo Spotify. Abre Spotify, reproduce cualquier canción unos segundos y vuelve a esta pantalla.");return}
+   const r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({uris:[TRACKS[cardId]],position_ms:0})});
+   if(!r.ok){show("Spotify no ha iniciado la pista. Comprueba Premium y que el dispositivo esté disponible.");return}
+   $("play").classList.add("hidden"); $("pause").classList.remove("hidden");
+   let left=30; $("timer").textContent=left; show("¡Escucha y adivina!");
+   tickTimer=setInterval(()=>{$("timer").textContent=Math.max(0,--left)},1000);
+   stopTimer=setTimeout(pause,30000);
+ }catch(e){
+   if(e.message==="LOGIN"){ $("login").classList.remove("hidden"); $("play").classList.add("hidden"); show("Conecta Spotify para jugar.");}
+   else show("Error al controlar Spotify.");
+ }
+}
+(async()=>{
+ if(!TRACKS[cardId]){show("Escanea una tarjeta válida.");return}
+ const q=new URLSearchParams(location.search);
+ if(q.get("code")){
+   try{
+     if(q.get("state")!==sessionStorage.getItem("oauth_state")) throw new Error("Estado OAuth no válido");
+     await exchangeCode(q.get("code"));
+   }catch(e){show(e.message); $("login").classList.remove("hidden"); return}
+ }
+ const tk=await token();
+ if(!tk){show("Conecta Spotify una vez. Después las tarjetas irán directas al juego."); $("login").classList.remove("hidden")}
+ else{show("Tarjeta lista."); $("play").classList.remove("hidden")}
+})();
+$("login").onclick=login; $("play").onclick=play30; $("pause").onclick=pause;
+</script>
+</body>
+</html>
