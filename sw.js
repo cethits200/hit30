@@ -1,9 +1,9 @@
 
-const CACHE = 'hit30-shell-v5';
+const CACHE = 'hit30-shell-v6';
 const STATIC_ASSETS = [
-  './manifest-v5.webmanifest?v=5',
-  './hit30-v5-192.png?v=5',
-  './hit30-v5-512.png?v=5'
+  './manifest-v6.webmanifest?v=6',
+  './hit30-final-192.png?v=6',
+  './hit30-final-512.png?v=6'
 ];
 
 self.addEventListener('install', event => {
