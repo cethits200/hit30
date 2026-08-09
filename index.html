@@ -100,7 +100,14 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .swipe{
   margin-top:16px;text-align:center;font-size:13px;color:#85858e
 }
-.year{font-size:56px;font-weight:1000;line-height:1}
+.cover{
+  width:min(72%,260px);aspect-ratio:1/1;object-fit:cover;
+  border-radius:18px;margin:18px auto 18px;
+  box-shadow:0 16px 38px rgba(0,0,0,.42);
+  display:none
+}
+.cover.show{display:block}
+.year{font-size:46px;font-weight:1000;line-height:1}
 .title{font-size:30px;font-weight:950;line-height:1.06;margin:24px 0 10px}
 .artist{font-size:21px;color:#cacad1;font-weight:700}
 .answerlabel{
@@ -148,6 +155,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
       <section class="face back">
         <div class="answerlabel">RESPUESTA</div>
+        <img id="cover" class="cover" alt="Carátula del disco">
         <div class="year" id="year">1996</div>
         <div class="title" id="title">Canción</div>
         <div class="artist" id="artist">Artista</div>
@@ -241,6 +249,9 @@ function renderCurrent(){
   $("year").textContent=current.year;
   $("title").textContent=current.title;
   $("artist").textContent=current.artist;
+  $("cover").classList.remove("show");
+  $("cover").removeAttribute("src");
+  loadCover();
   $("counter").textContent=`${played} / ${TRACKS.length}`;
   $("progress").style.width=`${(played/TRACKS.length)*100}%`;
   $("timer").textContent="30";
@@ -410,12 +421,30 @@ async function play30(ev){
     }
   }
 }
+
+async function loadCover(){
+  try{
+    const trackId=current.uri.split(":").pop();
+    const r=await api("/tracks/"+encodeURIComponent(trackId));
+    if(!r.ok) return;
+    const data=await r.json();
+    const images=(data.album && data.album.images)||[];
+    if(images.length){
+      $("cover").src=images[0].url;
+      $("cover").classList.add("show");
+    }
+  }catch(e){
+    // Si aún no hay autorización, la portada se intentará de nuevo al conectar.
+  }
+}
+
 async function updateAuthUI(){
   const tk=await token();
   if(tk){
     $("login").classList.add("hidden");
     $("play").classList.remove("hidden");
     show("Tarjeta lista.");
+    loadCover();
   }else{
     $("play").classList.add("hidden");
     $("login").classList.remove("hidden");
