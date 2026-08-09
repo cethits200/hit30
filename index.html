@@ -1,6 +1,13 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>HIT30</title><style>
+<title>HIT30</title>
+<meta name="theme-color" content="#0b0b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HIT30">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
 *{box-sizing:border-box}body{margin:0;background:#0b0b0f;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:16px}.app{width:min(100%,470px)}
 .hidden{display:none!important}button,select{font:inherit}button{border:0;border-radius:14px;padding:14px 16px;font-weight:800;cursor:pointer}.p{width:100%;background:#fff;color:#111}.s{width:100%;background:#27272e;color:#fff;margin-top:9px}.g{background:transparent;color:#bbb;padding:8px}
 .setup{margin-top:8vh;background:#17171d;border:1px solid #33333b;border-radius:24px;padding:22px;box-shadow:0 20px 60px #0007}.setup h1{font-size:44px;letter-spacing:.08em;margin:0}.setup p{color:#aaa}.f{margin:14px 0}.f label{display:block;color:#bbb;font-size:13px;margin-bottom:7px;font-weight:700}.r{display:grid;grid-template-columns:1fr 1fr;gap:10px}select{width:100%;padding:12px;border-radius:12px;background:#24242b;color:#fff;border:1px solid #3b3b43}
@@ -50,4 +57,10 @@ async function auth(){if(await tok()){login.classList.add("hidden");play.classLi
 scene.onclick=e=>{if(!e.target.closest("button"))flip()};scene.addEventListener("touchstart",e=>sx=e.changedTouches[0].screenX,{passive:true});scene.addEventListener("touchend",e=>{if(sx===null)return;let dx=e.changedTouches[0].screenX-sx;sx=null;if(Math.abs(dx)>45)flip()},{passive:true});
 start.onclick=begin;login.onclick=loginFn;play.onclick=playFn;pause.onclick=e=>{e.stopPropagation();stop(false)};next.onclick=nxt;newg.onclick=()=>{if(confirm("¿Nueva partida?")){stop(true);game.classList.add("hidden");setup.classList.remove("hidden")}};
 (async()=>{let q=new URLSearchParams(location.search);if(q.get("code"))try{if(q.get("state")!==sessionStorage.state)throw Error("Autorización no válida");await exchange(q.get("code"));let r=JSON.parse(sessionStorage.resume||"null");if(r){deck=r.ids.map(id=>TRACKS.find(t=>t.id===id)).filter(Boolean);pos=r.pos;total=r.total;cur=deck[pos];setup.classList.add("hidden");game.classList.remove("hidden");render()}}catch(e){alert(e.message)}})();
-</script></body></html>
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+}
+</script>
+</body></html>
