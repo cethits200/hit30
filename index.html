@@ -111,9 +111,21 @@ scene.onclick=e=>{if(!e.target.closest("button"))flip()};scene.addEventListener(
 start.onclick=begin;login.onclick=loginFn;play.onclick=playFn;pause.onclick=e=>{e.stopPropagation();stop(false)};next.onclick=nxt;newg.onclick=()=>{if(confirm("¿Nueva partida?")){stop(true);game.classList.add("hidden");setup.classList.remove("hidden")}};
 (async()=>{let q=new URLSearchParams(location.search);if(q.get("code"))try{if(q.get("state")!==sessionStorage.state)throw Error("Autorización no válida");await exchange(q.get("code"));let r=JSON.parse(sessionStorage.resume||"null");if(r){deck=r.ids.map(id=>TRACKS.find(t=>t.id===id)).filter(Boolean);pos=r.pos;total=r.total;cur=deck[pos];setup.classList.add("hidden");game.classList.remove("hidden");render()}}catch(e){alert(e.message)}})();
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+      await reg.update();
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (refreshing) return;
+        refreshing = true;
+        location.reload();
+      });
+    } catch (e) {}
+  });
 }
-</script>
-</body></html>
+</script></body></html>
