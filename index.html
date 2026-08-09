@@ -73,7 +73,7 @@ async function exchangeCode(code){
  localStorage.setItem("access_token",t.access_token);
  localStorage.setItem("expires_at",Date.now()+t.expires_in*1000);
  if(t.refresh_token) localStorage.setItem("refresh_token",t.refresh_token);
- history.replaceState({}, "", REDIRECT_URI+"?c="+encodeURIComponent(sessionStorage.getItem("return_card")||cardId||""));
+ history.replaceState({}, "", REDIRECT_URI+"?c="+encodeURIComponent(sessionStorage.getItem("return_card")||cardId||""));location.reload();
 }
 async function refreshToken(){
  const rt=localStorage.getItem("refresh_token"); if(!rt) return false;
@@ -124,7 +124,7 @@ async function play30(){
  }
 }
 (async()=>{
- if(!TRACKS[cardId]){show("Escanea una tarjeta válida.");return}
+ if(!TRACKS[cardId] && !new URLSearchParams(location.search).get("code")){show("Escanea una tarjeta válida.");return}
  const q=new URLSearchParams(location.search);
  if(q.get("code")){
    try{
