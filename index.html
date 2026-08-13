@@ -149,17 +149,30 @@ select,input[type=text]{width:100%;padding:12px 13px;border-radius:13px;backgrou
 
 </div>
 
-<script src="catalogo-clasico.js?v=12"></script>
-<script src="catalogo-cine.js?v=12"></script>
-<script src="catalogo-latino.js?v=12"></script>
-<script src="catalogo-ot.js?v=12"></script>
-<script src="catalogo-verano.js?v=12"></script>
-<script src="catalogo-tv.js?v=12"></script>
+<script src="catalogo-clasico.js?v=12.2"></script>
 <script>
 const CLIENT_ID="4473f3716282436ea5312f0aba46455b";
 const REDIRECT_URI=location.origin+location.pathname;
 const SCOPES=["user-read-playback-state","user-modify-playback-state"];
 const $=id=>document.getElementById(id);
+
+/* V12.2: referencias DOM explícitas.
+   No dependemos de que el navegador convierta id="..." en variables globales. */
+const modeGrid=$("modeGrid"), setupTitle=$("setupTitle"), setupSub=$("setupSub"),
+      setupBrand=$("setupBrand"), gameBrand=$("gameBrand"), originField=$("originField"),
+      originSelect=$("origin"), yearFrom=$("yearFrom"), yearTo=$("yearTo"),
+      decadeBtns=$("decadeBtns"), historyInfo=$("historyInfo"), p1=$("p1"), p2=$("p2"),
+      pname0=$("pname0"), pname1=$("pname1"), pscore0=$("pscore0"), pscore1=$("pscore1"),
+      pbox0=$("pbox0"), pbox1=$("pbox1"), turnLabel=$("turnLabel"),
+      card=$("card"), nextBtn=$("next"), pauseBtn=$("pause"), playBtn=$("play"),
+      loginBtn=$("login"), timerEl=$("timer"), counter=$("counter"), cardNum=$("cardNum"),
+      cover=$("cover"), bar=$("bar"), checks=$("checks"), answer1=$("answer1"),
+      answer2=$("answer2"), answer3=$("answer3"), extraInfo=$("extraInfo"),
+      statusEl=$("status"), podium=$("podium"), rankMode=$("rankMode"),
+      rankList=$("rankList"), sizeBtns=$("sizeBtns"), startGame=$("startGame"),
+      resetModeHistory=$("resetModeHistory"), scene=$("scene"), backFace=$("backFace"),
+      goModes=$("goModes"), goRanking=$("goRanking"), backModes=$("backModes"),
+      quitGame=$("quitGame"), endHome=$("endHome");
 
 const MODES={
  clasico:{name:"CLÁSICO",icon:"🎧",desc:"Grandes éxitos en España",theme:["#8d5cff","#ff5f9e","#4ab7ff"],catalog:()=>window.HIT30_CATALOG||[],years:[1960,2026],score:["Artista","Canción","Año"],answers:["title","artist","year"],origin:true},
@@ -216,7 +229,7 @@ function separate(items,gap=7){
 function makeDeck(){
  let used=usedSet(),from=+yearFrom.value,to=+yearTo.value;
  let a=TRACKS.filter(t=>{let y=+(t.year??t.movie_year??t.summer_year??t.spain_year??0);return y>=from&&y<=to&&!used.has(t.id)});
- if(mode.origin&&!originField.classList.contains("hidden")&&origin.value!=="ALL")a=a.filter(t=>t.origin===origin.value);
+ if(mode.origin&&!originField.classList.contains("hidden")&&originSelect.value!=="ALL") a=a.filter(t=>t.origin===originSelect.value);
  return separate(shuffle(a).slice(0,Math.min(gameSize,a.length)),7)
 }
 function start(){
@@ -227,7 +240,7 @@ function markCurrentUsed(){let s=usedSet();if(cur?.id&&!s.has(cur.id)){s.add(cur
 function renderScore(){pname0.textContent=players[0].name;pname1.textContent=players[1].name;pscore0.textContent=players[0].score;pscore1.textContent=players[1].score;pbox0.classList.toggle("active",turn===0);pbox1.classList.toggle("active",turn===1);turnLabel.textContent=`Turno de ${players[turn].name}`}
 function val(obj,key){return obj?.[key]??""}
 function renderCard(){
- card.classList.remove("flip");next.classList.add("hidden");pause.classList.add("hidden");timer.textContent=30;counter.textContent=`${pos+1} / ${total}`;cardNum.textContent=`Tarjeta ${pos+1}`;cover.removeAttribute("src");cover.style.display="none";bar.style.width=`${((pos+1)/total)*100}%`;renderScore();buildChecks();auth();loadMeta()
+ card.classList.remove("flip");nextBtn.classList.add("hidden");pauseBtn.classList.add("hidden");timerEl.textContent=30;counter.textContent=`${pos+1} / ${total}`;cardNum.textContent=`Tarjeta ${pos+1}`;cover.removeAttribute("src");cover.style.display="none";bar.style.width=`${((pos+1)/total)*100}%`;renderScore();buildChecks();auth();loadMeta()
 }
 function buildChecks(){
  checks.innerHTML="";mode.score.forEach((label,i)=>{let r=document.createElement("div");r.className="checkRow";r.innerHTML=`<label>${esc(label)} +1</label><input type="checkbox" data-score="${i}">`;r.addEventListener("click",e=>e.stopPropagation());r.addEventListener("touchstart",e=>e.stopPropagation(),{passive:true});checks.appendChild(r)})
@@ -235,7 +248,7 @@ function buildChecks(){
 function applyScore(){
  [...checks.querySelectorAll("input")].forEach((x,i)=>{if(x.checked){players[turn].score++;if(i===0)players[turn].a++;if(i===1)players[turn].b++;if(i===2)players[turn].c++}})
 }
-function flipCard(){if(Date.now()<block)return;card.classList.toggle("flip");if(card.classList.contains("flip"))next.classList.remove("hidden")}
+function flipCard(){if(Date.now()<block)return;card.classList.toggle("flip");if(card.classList.contains("flip"))nextBtn.classList.remove("hidden")}
 function nextCard(){
  applyScore();markCurrentUsed();
  if(pos+1>=total){finish();return}
@@ -254,12 +267,12 @@ function saveRanking(sorted,tie){
  localStorage.setItem("hit30_ranking",JSON.stringify(data))
 }
 function renderRanking(){
- rankMode.innerHTML='<option value="all">General</option>'+Object.entries(MODES).map(([k,m])=>`<option value="${k}">${m.name}</option>`).join("");
+ rankMode.innerHTML='<option value="clasico">CLÁSICO</option>'; rankMode.value="clasico";
  showRanking()
 }
 function showRanking(){
  let d=JSON.parse(localStorage.getItem("hit30_ranking")||"{}"),agg={};
- let keys=rankMode.value==="all"?Object.keys(MODES):[rankMode.value];
+ let keys=["clasico"];
  keys.forEach(k=>Object.entries(d[k]||{}).forEach(([n,s])=>{agg[n]??={wins:0,games:0,points:0};agg[n].wins+=s.wins;agg[n].games+=s.games;agg[n].points+=s.points}));
  let rows=Object.entries(agg).sort((a,b)=>b[1].wins-a[1].wins||b[1].points-a[1].points);
  rankList.innerHTML=rows.length?rows.map(([n,s],i)=>`<div class="rankRow"><div class="rankPos">${i+1}</div><div><b>${esc(n)}</b><div class="rankMeta">${s.games} partidas · ${s.points} puntos</div></div><b>${s.wins} 🏆</b></div>`).join(""):'<div style="color:#aaa;text-align:center;padding:20px">Todavía no hay partidas registradas.</div>'
@@ -298,20 +311,20 @@ async function loadMeta(){
 async function play30(e){
  e?.stopPropagation();block=Date.now()+400;
  try{
-  let d=await device();if(!d){status.textContent="Abre Spotify, reproduce cualquier canción unos segundos y vuelve.";return}
+  let d=await device();if(!d){statusEl.textContent="Abre Spotify, reproduce cualquier canción unos segundos y vuelve.";return}
   let uri=await resolve(),dur=cur.duration||180000,clip=30000,margin=8000,max=Math.max(margin,dur-clip-margin),start=dur>clip+margin*2?Math.floor(margin+Math.random()*(max-margin)):0;
-  let r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({uris:[uri],position_ms:start})});if(!r.ok){status.textContent="Spotify no pudo iniciar la pista.";return}
-  play.classList.add("hidden");pause.classList.remove("hidden");let n=30;timer.textContent=n;status.textContent="¡Escucha y adivina!";it=setInterval(()=>timer.textContent=Math.max(0,--n),1000);st=setTimeout(async()=>{await stopPlayback(true);play.classList.remove("hidden");status.textContent="Tiempo terminado. Descubre la respuesta."},30000)
- }catch(e){if(e.message==="LOGIN")auth();else status.textContent="No se pudo reproducir esta tarjeta."}
+  let r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({uris:[uri],position_ms:start})});if(!r.ok){statusEl.textContent="Spotify no pudo iniciar la pista.";return}
+  playBtn.classList.add("hidden");pauseBtn.classList.remove("hidden");let n=30;timerEl.textContent=n;statusEl.textContent="¡Escucha y adivina!";it=setInterval(()=>timerEl.textContent=Math.max(0,--n),1000);st=setTimeout(async()=>{await stopPlayback(true);playBtn.classList.remove("hidden");statusEl.textContent="Tiempo terminado. Descubre la respuesta."},30000)
+ }catch(e){if(e.message==="LOGIN")auth();else statusEl.textContent="No se pudo reproducir esta tarjeta."}
 }
-async function stopPlayback(silent=false){clearTimeout(st);clearInterval(it);try{if(await token())await api("/me/player/pause",{method:"PUT"})}catch(e){}timer.textContent=30;pause.classList.add("hidden");if(!silent){play.classList.remove("hidden");status.textContent="Reproducción detenida."}}
-async function auth(){if(await token()){login.classList.add("hidden");play.classList.remove("hidden");status.textContent="Tarjeta lista."}else{play.classList.add("hidden");login.classList.remove("hidden");status.textContent="Conecta Spotify para jugar."}}
+async function stopPlayback(silent=false){clearTimeout(st);clearInterval(it);try{if(await token())await api("/me/player/pause",{method:"PUT"})}catch(e){}timerEl.textContent=30;pauseBtn.classList.add("hidden");if(!silent){playBtn.classList.remove("hidden");statusEl.textContent="Reproducción detenida."}}
+async function auth(){if(await token()){loginBtn.classList.add("hidden");playBtn.classList.remove("hidden");statusEl.textContent="Tarjeta lista."}else{playBtn.classList.add("hidden");loginBtn.classList.remove("hidden");statusEl.textContent="Conecta Spotify para jugar."}}
 
-goModes.onclick=()=>{renderModes();showOnly("modes")};goRanking.onclick=()=>{renderRanking();showOnly("ranking")};document.querySelectorAll(".backHome").forEach(b=>b.onclick=()=>{setTheme(MODES.clasico);showOnly("home")});backModes.onclick=()=>{renderModes();showOnly("modes")};
+goModes.onclick=()=>selectMode("clasico");goRanking.onclick=()=>{renderRanking();showOnly("ranking")};document.querySelectorAll(".backHome").forEach(b=>b.onclick=()=>{setTheme(MODES.clasico);showOnly("home")});backModes.onclick=()=>selectMode("clasico");
 sizeBtns.querySelectorAll("button").forEach(b=>b.onclick=()=>{gameSize=+b.dataset.size;sizeBtns.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")});
 startGame.onclick=start;resetModeHistory.onclick=()=>{if(confirm(`¿Reiniciar las tarjetas utilizadas de HIT30 ${mode.name}?`)){localStorage.removeItem(historyKey());updateHistory()}};
 scene.onclick=e=>{if(e.target.closest("button,input,label,.checks"))return;flipCard()};backFace.addEventListener("click",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()});backFace.addEventListener("touchstart",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()},{passive:true});
-login.onclick=loginSpotify;play.onclick=play30;pause.onclick=e=>{e.stopPropagation();stopPlayback(false)};next.onclick=nextCard;quitGame.onclick=()=>{if(confirm("¿Salir de la partida? La tarjeta actual no contará como utilizada hasta pasar a la siguiente.")){stopPlayback(true);showOnly("setup")}};endHome.onclick=()=>{setTheme(MODES.clasico);showOnly("home")};rankMode.onchange=showRanking;
+loginBtn.onclick=loginSpotify;playBtn.onclick=play30;pauseBtn.onclick=e=>{e.stopPropagation();stopPlayback(false)};nextBtn.onclick=nextCard;quitGame.onclick=()=>{if(confirm("¿Salir de la partida? La tarjeta actual no contará como utilizada hasta pasar a la siguiente.")){stopPlayback(true);showOnly("setup")}};endHome.onclick=()=>{setTheme(MODES.clasico);showOnly("home")};rankMode.onchange=showRanking;
 
 (async()=>{
  if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).catch(()=>{});

@@ -1,5 +1,5 @@
 
-const CACHE="hit30-v12-1-shell";
+const CACHE="hit30-clasico-temp-v1";
 const STATIC=[
  "./",
  "./index.html",
