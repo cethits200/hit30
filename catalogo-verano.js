@@ -1,0 +1,1 @@
+window.HIT30_VERANO=[];

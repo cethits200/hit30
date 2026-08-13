@@ -1,227 +1,326 @@
 <!doctype html>
-<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>HIT30</title>
-<meta name="theme-color" content="#0b0b0f">
+<meta name="theme-color" content="#8d5cff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HIT30">
-<link rel="manifest" href="manifest-v10.webmanifest?v=10">
-<link rel="apple-touch-icon" href="hit30-final-192.png?v=10">
+<link rel="manifest" href="manifest-v12.webmanifest?v=12">
+<link rel="apple-touch-icon" href="hit30-final-192.png?v=12">
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0b0b0f;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:16px}.app{width:min(100%,470px)}
-.hidden{display:none!important}button,select{font:inherit}button{border:0;border-radius:14px;padding:14px 16px;font-weight:800;cursor:pointer}.p{width:100%;background:#fff;color:#111}.s{width:100%;background:#27272e;color:#fff;margin-top:9px}.g{background:transparent;color:#bbb;padding:8px}
-.setup{
-  position:relative;
-  overflow:hidden;
-  margin-top:5vh;
-  background:
-    radial-gradient(circle at 12% 8%,rgba(130,87,229,.28),transparent 30%),
-    radial-gradient(circle at 88% 18%,rgba(255,79,145,.24),transparent 28%),
-    radial-gradient(circle at 55% 100%,rgba(52,152,219,.22),transparent 38%),
-    linear-gradient(155deg,#1a1723,#121219 52%,#17131f);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:28px;
-  padding:26px;
-  box-shadow:0 24px 70px #0008,inset 0 1px 0 rgba(255,255,255,.05)
+:root{
+ --a:#8d5cff;--b:#ff5f9e;--c:#4ab7ff;--bg:#0e0d13;--panel:#17151e;
+ font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color-scheme:dark
 }
-.setup:before,.setup:after{
-  content:"";
-  position:absolute;
-  width:180px;height:180px;border-radius:50%;
-  filter:blur(28px);opacity:.45;pointer-events:none
-}
-.setup:before{background:#7c4dff;top:-70px;left:-70px}
-.setup:after{background:#ff4f91;right:-80px;bottom:-60px}
-.setup h1{
-  position:relative;z-index:1;
-  font-size:52px;letter-spacing:.09em;margin:0 0 4px;
-  background:linear-gradient(90deg,#fff 0%,#d8c9ff 35%,#ff9fc5 70%,#8fd3ff 100%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  text-shadow:0 8px 30px rgba(124,77,255,.22)
-}
-.setup p{position:relative;z-index:1;color:#d2d2da;margin:0 0 20px;font-weight:650}
-.f{position:relative;z-index:1;margin:14px 0}
-.f label{display:block;color:#d8d8df;font-size:13px;margin-bottom:7px;font-weight:800}
-.r{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:relative;z-index:1}
-select{
-  width:100%;padding:13px 14px;border-radius:14px;
-  background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
-  color:#fff;border:1px solid rgba(255,255,255,.14);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)
-}
-#start{
-  position:relative;z-index:1;
-  background:linear-gradient(90deg,#8d5cff,#ff5f9e 55%,#4ab7ff);
-  color:#fff;
-  box-shadow:0 14px 32px rgba(142,92,255,.28);
-  border:1px solid rgba(255,255,255,.16)
-}
-#start:hover{filter:brightness(1.06)}
-.setup .small{position:relative;z-index:1;color:#b8b8c4}
-.intro-bars{position:relative;z-index:1;height:26px;display:flex;align-items:end;gap:5px;margin:2px 0 18px}
-.intro-bars span{display:block;width:6px;border-radius:99px;background:linear-gradient(180deg,#ff7faf,#9b6cff 58%,#57c3ff);box-shadow:0 0 14px rgba(155,108,255,.28)}
-.intro-bars span:nth-child(1){height:9px}.intro-bars span:nth-child(2){height:18px}.intro-bars span:nth-child(3){height:13px}.intro-bars span:nth-child(4){height:24px}.intro-bars span:nth-child(5){height:16px}.intro-bars span:nth-child(6){height:21px}.intro-bars span:nth-child(7){height:11px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:white}
+body{min-height:100vh;background:
+ radial-gradient(circle at 10% 10%,color-mix(in srgb,var(--a) 27%,transparent),transparent 30%),
+ radial-gradient(circle at 90% 16%,color-mix(in srgb,var(--b) 22%,transparent),transparent 28%),
+ radial-gradient(circle at 55% 100%,color-mix(in srgb,var(--c) 20%,transparent),transparent 36%),#0e0d13}
+.app{width:min(100%,500px);margin:auto;padding:16px 16px 28px}
+.hidden{display:none!important}
+button,input,select{font:inherit}
+button{border:0;border-radius:15px;padding:14px 16px;font-weight:850;cursor:pointer}
+.primary{width:100%;color:white;background:linear-gradient(90deg,var(--a),var(--b) 55%,var(--c));box-shadow:0 12px 30px color-mix(in srgb,var(--a) 25%,transparent)}
+.secondary{width:100%;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12);margin-top:9px}
+.ghost{background:transparent;color:#ddd;padding:8px 10px}
+.screen{min-height:calc(100vh - 32px)}
+.hero{min-height:calc(100vh - 38px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.heroLogo{font-size:78px;font-weight:1000;letter-spacing:.08em;line-height:.9;background:linear-gradient(90deg,#fff,#d9c7ff 30%,#ff8cbd 65%,#7dd1ff);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 12px 50px rgba(141,92,255,.28)}
+.heroSub{font-size:17px;color:#cfcbd8;margin:14px 0 30px}
+.heroActions{width:100%;display:grid;gap:12px}
+.rankBtn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin:3px 0 16px}.brand{font-weight:1000;letter-spacing:.13em}
+.title{font-size:30px;font-weight:950;margin:5px 0}.sub{color:#aaa;margin:0 0 18px}
+.modeGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modeCard{position:relative;min-height:154px;border-radius:23px;padding:18px;overflow:hidden;border:1px solid rgba(255,255,255,.14);box-shadow:0 16px 34px #0006;cursor:pointer}
+.modeCard:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-45px;bottom:-45px;background:rgba(255,255,255,.11);filter:blur(2px)}
+.modeIcon{font-size:37px}.modeName{font-size:21px;font-weight:1000;margin-top:15px}.modeDesc{font-size:12px;color:rgba(255,255,255,.8);margin-top:4px}.modeCount{font-size:11px;color:rgba(255,255,255,.7);margin-top:8px}
+.clasico{background:linear-gradient(145deg,#2c214d,#171722 60%,#152a44)}
+.cine{background:linear-gradient(145deg,#a51d2e,#40121c 58%,#1c1518)}
+.latino{background:linear-gradient(145deg,#ff5b38,#d82e87 48%,#117e88)}
+.ot{background:linear-gradient(145deg,#124dce,#582ac4 52%,#d836b2)}
+.verano{background:linear-gradient(145deg,#0aafd0,#3bd29d 50%,#f5a62a)}
+.tv{background:linear-gradient(145deg,#315447,#806d24 52%,#c55724)}
+.panel{position:relative;overflow:hidden;background:linear-gradient(155deg,color-mix(in srgb,var(--a) 17%,#17151e),#121118 60%,color-mix(in srgb,var(--b) 10%,#15131a));border:1px solid rgba(255,255,255,.12);border-radius:25px;padding:22px;box-shadow:0 20px 55px #0007}
+.field{margin:14px 0}.field label{display:block;font-size:13px;color:#d4d1da;font-weight:800;margin-bottom:7px}
+select,input[type=text]{width:100%;padding:12px 13px;border-radius:13px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#fff}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sizeBtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.sizeBtns button{background:rgba(255,255,255,.08);color:#ddd;border:1px solid rgba(255,255,255,.12)}.sizeBtns button.sel{background:linear-gradient(90deg,var(--a),var(--b));color:#fff}
+.decadeBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.decadeBtns button{padding:9px 5px;font-size:12px;background:rgba(255,255,255,.07);color:#ddd;border:1px solid rgba(255,255,255,.11)}.decadeBtns button.sel{background:linear-gradient(90deg,var(--a),var(--b))}
+.historyInfo{text-align:center;color:#aaa;font-size:12px;margin:10px 0}
+.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}.pbox{border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:8px 10px;background:rgba(255,255,255,.05)}.pbox.active{background:linear-gradient(135deg,color-mix(in srgb,var(--a) 27%,transparent),color-mix(in srgb,var(--b) 22%,transparent));border-color:rgba(255,255,255,.3)}.pname{font-size:12px;color:#bbb}.pscore{font-size:24px;font-weight:1000}.turn{text-align:center;color:#ccc;font-size:12px;margin-bottom:8px}
+.scene{perspective:1200px;width:100%;height:min(70vh,620px);min-height:520px}.card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s;border-radius:27px}.card.flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:27px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid rgba(255,255,255,.13);overflow:hidden;box-shadow:0 22px 60px #0007}
+.front{padding:26px;display:flex;flex-direction:column;background:
+ radial-gradient(circle at 12% 8%,color-mix(in srgb,var(--a) 32%,transparent),transparent 30%),
+ radial-gradient(circle at 88% 18%,color-mix(in srgb,var(--b) 26%,transparent),transparent 28%),
+ radial-gradient(circle at 55% 100%,color-mix(in srgb,var(--c) 24%,transparent),transparent 38%),
+ linear-gradient(155deg,#191720,#111017)}
+.back{transform:rotateY(180deg);background:
+ radial-gradient(circle at 16% 10%,color-mix(in srgb,var(--c) 26%,transparent),transparent 30%),
+ radial-gradient(circle at 86% 18%,color-mix(in srgb,var(--b) 26%,transparent),transparent 30%),
+ linear-gradient(155deg,#191720,#111017);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.backInner{min-height:100%;padding:20px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.kicker{font-size:12px;letter-spacing:.15em;color:#aaa;font-weight:850}.num{font-size:13px;color:#c7c3ce;margin-top:6px}.mid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.gameLogo{font-size:49px;font-weight:1000;letter-spacing:.08em;background:linear-gradient(90deg,#fff,#d8c9ff 35%,#ff9fc5 70%,#8fd3ff);-webkit-background-clip:text;background-clip:text;color:transparent}.prompt{font-size:18px;color:#ddd}.timer{font-size:72px;font-weight:1000;margin:23px 0 8px;line-height:1}.status{min-height:42px;color:#aaa;font-size:14px;display:flex;align-items:center;text-align:center}.swipe{text-align:center;font-size:12px;color:#888;margin-top:13px}
+.cover{width:min(56%,195px);aspect-ratio:1;object-fit:cover;border-radius:17px;margin:26px 0 10px;box-shadow:0 16px 36px #0007}.answerLabel{position:absolute;top:18px;left:0;right:0;text-align:center;color:#8f8a96;font-size:11px;letter-spacing:.15em;font-weight:850}.answerYear{font-size:39px;font-weight:1000;background:linear-gradient(90deg,#d8c9ff,#ff9fc5,#8fd3ff);-webkit-background-clip:text;background-clip:text;color:transparent}.answerTitle{font-size:24px;font-weight:950;line-height:1.05;margin:10px 0 5px}.answerArtist{font-size:18px;color:#ddd;font-weight:750}
+.checks{width:100%;display:grid;gap:7px;margin:14px 0 10px}.checkRow{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}.checkRow label{font-size:14px;font-weight:850}.checkRow input{width:23px;height:23px;accent-color:var(--a)}
+.progress{height:5px;background:#25232b;border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;background:linear-gradient(90deg,var(--a),var(--b),var(--c));width:0}
+.endCard{border-radius:25px;padding:24px;background:linear-gradient(145deg,color-mix(in srgb,var(--a) 25%,#1c1725),#131119 60%,color-mix(in srgb,var(--b) 15%,#16131b));border:1px solid rgba(255,255,255,.13);box-shadow:0 22px 58px #0008}.podium{display:grid;gap:12px}.winnerCard{padding:18px;border-radius:20px;background:linear-gradient(135deg,var(--a),var(--b) 58%,var(--c));box-shadow:0 16px 35px color-mix(in srgb,var(--a) 30%,transparent)}.secondCard{padding:15px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}.place{font-size:12px;letter-spacing:.12em}.bigScore{font-size:42px;font-weight:1000}.stats{font-size:13px;color:#eee;margin-top:6px}
+.rankList{display:grid;gap:9px}.rankRow{display:grid;grid-template-columns:38px 1fr auto;align-items:center;padding:12px;border-radius:15px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.rankPos{font-weight:1000;font-size:20px}.rankMeta{font-size:12px;color:#aaa}
+.disabledMode{filter:saturate(.35);opacity:.62}.badge{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.35);padding:5px 8px;border-radius:99px;font-size:10px}
+</style>
+</head>
+<body>
+<div class="app">
 
+<section id="home" class="screen hero">
+ <div class="heroLogo">HIT<br>30</div>
+ <div class="heroSub">¿Cuánto sabes de música?</div>
+ <div class="heroActions">
+  <button id="goModes" class="primary">▶ JUGAR</button>
+  <button id="goRanking" class="rankBtn">🏆 RANKING</button>
+ </div>
+</section>
 
-header{display:flex;align-items:center;justify-content:space-between;margin:3px 0 11px}.brand{font-weight:1000;letter-spacing:.13em}.count{color:#aaa;font-size:14px}
-.scene{perspective:1200px;width:100%;aspect-ratio:3/4.35}.card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s;border-radius:28px}.card.flip{transform:rotateY(180deg)}
-.face{position:absolute;inset:0;border-radius:28px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid #34343c;overflow:hidden;box-shadow:0 22px 60px #0007}
-.front{padding:27px;display:flex;flex-direction:column;background:radial-gradient(circle at 12% 8%,rgba(130,87,229,.30),transparent 30%),radial-gradient(circle at 88% 18%,rgba(255,79,145,.24),transparent 28%),radial-gradient(circle at 55% 100%,rgba(52,152,219,.22),transparent 38%),linear-gradient(155deg,#1a1723,#121219 52%,#17131f)}.back{transform:rotateY(180deg);padding:20px;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;text-align:center;background:radial-gradient(circle at 14% 12%,rgba(74,183,255,.25),transparent 30%),radial-gradient(circle at 86% 16%,rgba(255,95,158,.26),transparent 30%),radial-gradient(circle at 50% 95%,rgba(141,92,255,.24),transparent 38%),linear-gradient(155deg,#1b1726,#111117 55%,#17131f)}
-.k{font-size:12px;letter-spacing:.15em;color:#999;font-weight:800}.n{font-size:14px;color:#c4c4cc;margin-top:6px}.mid{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}.logo{font-size:49px;font-weight:1000;letter-spacing:.08em;background:linear-gradient(90deg,#fff,#d8c9ff 35%,#ff9fc5 70%,#8fd3ff);-webkit-background-clip:text;background-clip:text;color:transparent}.prompt{font-size:18px;color:#ccc;font-weight:700}.timer{font-size:72px;font-weight:1000;line-height:1;margin:24px 0 8px}.status{min-height:42px;color:#aaa;font-size:14px;display:flex;align-items:center;text-align:center}.sw{font-size:12px;color:#82828b;text-align:center;margin-top:14px}
-.cover{width:min(68%,245px);aspect-ratio:1;object-fit:cover;border-radius:18px;box-shadow:0 16px 38px #0007;margin:3px 0 14px;display:none}.cover.show{display:block}.year{font-size:40px;font-weight:1000;background:linear-gradient(90deg,#d8c9ff,#ff9fc5,#8fd3ff);-webkit-background-clip:text;background-clip:text;color:transparent}.title{font-size:28px;line-height:1.05;font-weight:950;margin:17px 0 8px}.artist{font-size:20px;color:#ccc;font-weight:750}.ans{position:absolute;top:20px;left:0;right:0;color:#888;font-size:11px;letter-spacing:.16em;font-weight:800}
-.controls{margin-top:12px}.prog{height:5px;background:#24242a;border-radius:99px;overflow:hidden;margin-top:10px}.bar{height:100%;background:#eee;width:0}.small{font-size:12px;color:#777;text-align:center;margin-top:10px}
+<section id="modes" class="screen hidden">
+ <div class="topbar"><button class="ghost backHome">←</button><div class="brand">HIT30</div><span></span></div>
+ <div class="title">Elige tu modo</div><div class="sub">Cada modalidad tiene su propio historial y estilo.</div>
+ <div id="modeGrid" class="modeGrid"></div>
+</section>
 
-.scoreboard{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}.playerBox{border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:8px 10px;background:rgba(255,255,255,.05);transition:.2s}.playerBox.active{background:linear-gradient(135deg,rgba(141,92,255,.25),rgba(255,95,158,.20));border-color:rgba(255,255,255,.30);box-shadow:0 0 20px rgba(141,92,255,.15)}.pname{font-size:12px;color:#bbb}.pscore{font-size:24px;font-weight:1000}.turn{font-size:12px;color:#cfcfd8;text-align:center;margin:-2px 0 8px}.scoreChecks{width:100%;display:grid;grid-template-columns:1fr;gap:7px;margin-top:12px}.checkRow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10)}.checkRow label{font-size:14px;font-weight:800}.checkRow input{width:22px;height:22px;accent-color:#a66cff}.back .cover{width:min(56%,190px);margin-top:25px;margin-bottom:10px}.back .title{font-size:24px;margin:10px 0 5px}.back .artist{font-size:18px}.endPanel{padding:25px;text-align:center;background:linear-gradient(145deg,#21172e,#111117);border-radius:24px;border:1px solid #393042;margin-top:10vh}.endPanel h2{font-size:34px;margin:0 0 14px}.winner{font-size:23px;font-weight:900;margin:12px 0 20px}.statline{display:flex;justify-content:space-between;margin:8px 0;color:#ddd}.decadeBtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:9px 0 14px}.decadeBtns button{padding:9px 5px;font-size:12px;background:#2a2634;color:#ddd;border:1px solid #423a51}.decadeBtns button.sel{background:linear-gradient(90deg,#8d5cff,#ff5f9e);color:#fff}.nameInputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.nameInputs input{width:100%;padding:12px;border-radius:12px;background:#24242b;color:#fff;border:1px solid #3b3b43}
-</style></head><body><div class="app">
-<section id="setup" class="setup"><h1>HIT30</h1><p>Configura la partida.</p>
-<div class="intro-bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-<div class="f"><label>Canciones</label><select id="size"><option>25</option><option>50</option><option selected>100</option><option>250</option><option>500</option><option>1000</option></select></div>
-<div class="r"><div class="f"><label>Desde</label><select id="yf"></select></div><div class="f"><label>Hasta</label><select id="yt"></select></div></div>
-<div class="f"><label>Década rápida</label><div class="decadeBtns" id="decades"><button data-from="1960" data-to="1969">60s</button><button data-from="1970" data-to="1979">70s</button><button data-from="1980" data-to="1989">80s</button><button data-from="1990" data-to="1999">90s</button><button data-from="2000" data-to="2009">00s</button><button data-from="2010" data-to="2019">10s</button><button data-from="2020" data-to="2026">20s</button><button data-from="1960" data-to="2026">Todas</button></div></div>
-<div class="f"><label>Selección</label><select id="mix"><option value="all" selected>Éxitos en España</option></select></div>
-<div class="f"><label>Jugadores</label><div class="nameInputs"><input id="p1name" value="Jugador 1" maxlength="18"><input id="p2name" value="Jugador 2" maxlength="18"></div></div>
-<button id="start" class="p">Empezar partida</button><button id="resetHistory" class="s">Reiniciar historial de canciones</button><div id="historyInfo" class="small"></div></section>
+<section id="setup" class="screen hidden">
+ <div class="topbar"><button id="backModes" class="ghost">←</button><div id="setupBrand" class="brand">HIT30</div><span></span></div>
+ <div class="panel">
+  <div id="setupTitle" class="title"></div><div id="setupSub" class="sub"></div>
+  <div class="field"><label>Número de canciones</label><div id="sizeBtns" class="sizeBtns"><button data-size="30" class="sel">30</button><button data-size="50">50</button><button data-size="100">100</button></div></div>
+  <div class="field"><label>Periodo</label><div class="decadeBtns" id="decadeBtns"></div></div>
+  <div class="two"><div class="field"><label>Desde</label><select id="yearFrom"></select></div><div class="field"><label>Hasta</label><select id="yearTo"></select></div></div>
+  <div id="originField" class="field"><label>Música</label><select id="origin"><option value="ALL">Española y extranjera</option><option value="ES">Española</option><option value="INT">Extranjera</option></select></div>
+  <div class="field"><label>Jugadores</label><div class="two"><input id="p1" type="text" value="Jugador 1" maxlength="18"><input id="p2" type="text" value="Jugador 2" maxlength="18"></div></div>
+  <button id="startGame" class="primary">Empezar partida</button>
+  <button id="resetModeHistory" class="secondary"></button>
+  <div id="historyInfo" class="historyInfo"></div>
+ </div>
+</section>
 
-<section id="game" class="hidden"><header><div class="brand">HIT30</div><div id="count" class="count"></div><button id="newg" class="g">Nueva</button></header><div class="scoreboard"><div id="pbox0" class="playerBox active"><div id="pname0" class="pname">Jugador 1</div><div id="pscore0" class="pscore">0</div></div><div id="pbox1" class="playerBox"><div id="pname1" class="pname">Jugador 2</div><div id="pscore1" class="pscore">0</div></div></div><div id="turnLabel" class="turn"></div>
-<div id="scene" class="scene"><div id="card" class="card">
-<section class="face front"><div><div class="k">ADIVINA LA CANCIÓN</div><div id="num" class="n"></div></div><div class="mid"><div class="logo">HIT30</div><div class="prompt">Escucha y adivina</div><div id="timer" class="timer">30</div><div id="status" class="status"></div></div>
-<button id="login" class="p hidden">Conectar con Spotify</button><button id="play" class="p hidden">▶ Escuchar 30 segundos</button><button id="pause" class="s hidden">■ Parar</button><div class="sw">Desliza o toca la tarjeta para descubrir</div></section>
-<section class="face back"><div class="ans">RESPUESTA</div><img id="cover" class="cover"><div id="year" class="year"></div><div id="title" class="title"></div><div id="artist" class="artist"></div><div class="scoreChecks"><div class="checkRow"><label>Artista +1</label><input id="chkArtist" type="checkbox"></div><div class="checkRow"><label>Canción +1</label><input id="chkSong" type="checkbox"></div><div class="checkRow"><label>Año +1</label><input id="chkYear" type="checkbox"></div></div></section>
-</div></div><div class="controls"><button id="next" class="p hidden">Siguiente tarjeta →</button><div class="prog"><div id="bar" class="bar"></div></div></div></section><section id="endPanel" class="endPanel hidden"><h2>Partida terminada</h2><div id="winner" class="winner"></div><div id="endStats"></div><button id="backHome" class="p" style="margin-top:18px">Nueva partida</button></section></div><script src="catalogo-v10.js?v=10"></script>
+<section id="game" class="screen hidden">
+ <div class="topbar"><button id="quitGame" class="ghost">←</button><div id="gameBrand" class="brand">HIT30</div><div id="counter" style="font-size:13px;color:#aaa"></div></div>
+ <div class="scoreboard"><div id="pbox0" class="pbox active"><div id="pname0" class="pname"></div><div id="pscore0" class="pscore">0</div></div><div id="pbox1" class="pbox"><div id="pname1" class="pname"></div><div id="pscore1" class="pscore">0</div></div></div>
+ <div id="turnLabel" class="turn"></div>
+ <div id="scene" class="scene"><div id="card" class="card">
+  <section class="face front">
+   <div><div class="kicker">ADIVINA</div><div id="cardNum" class="num"></div></div>
+   <div class="mid"><div id="gameLogo" class="gameLogo">HIT30</div><div class="prompt">Escucha y adivina</div><div id="timer" class="timer">30</div><div id="status" class="status"></div></div>
+   <button id="login" class="primary hidden">Conectar con Spotify</button>
+   <button id="play" class="primary hidden">▶ Escuchar 30 segundos</button>
+   <button id="pause" class="secondary hidden">■ Parar</button>
+   <div class="swipe">Toca la tarjeta para descubrir</div>
+  </section>
+  <section id="backFace" class="face back">
+   <div class="answerLabel">RESPUESTA</div>
+   <div class="backInner">
+    <img id="cover" class="cover" alt="">
+    <div id="answer3" class="answerYear"></div>
+    <div id="answer1" class="answerTitle"></div>
+    <div id="answer2" class="answerArtist"></div>
+    <div id="extraInfo" style="font-size:13px;color:#aaa;margin-top:3px"></div>
+    <div id="checks" class="checks"></div>
+   </div>
+  </section>
+ </div></div>
+ <button id="next" class="primary hidden" style="margin-top:12px">Siguiente tarjeta →</button>
+ <div class="progress"><div id="bar" class="bar"></div></div>
+</section>
+
+<section id="end" class="screen hidden">
+ <div class="topbar"><span></span><div class="brand">RESULTADO</div><span></span></div>
+ <div class="endCard"><div id="podium" class="podium"></div><button id="endHome" class="primary" style="margin-top:18px">Volver al inicio</button></div>
+</section>
+
+<section id="ranking" class="screen hidden">
+ <div class="topbar"><button class="ghost backHome">←</button><div class="brand">🏆 RANKING</div><span></span></div>
+ <div class="panel"><div class="title">Ranking</div><div class="sub">Clasificación por victorias.</div>
+ <div class="field"><label>Modalidad</label><select id="rankMode"></select></div><div id="rankList" class="rankList"></div></div>
+</section>
+
+</div>
+
+<script src="catalogo-clasico.js?v=12"></script>
+<script src="catalogo-cine.js?v=12"></script>
+<script src="catalogo-latino.js?v=12"></script>
+<script src="catalogo-ot.js?v=12"></script>
+<script src="catalogo-verano.js?v=12"></script>
+<script src="catalogo-tv.js?v=12"></script>
 <script>
-const CLIENT_ID="4473f3716282436ea5312f0aba46455b", REDIRECT_URI=location.origin+location.pathname, SCOPES=["user-read-playback-state","user-modify-playback-state"];
-const TRACKS=window.HIT30_CATALOG||[];
-const $=x=>document.getElementById(x); let deck=[],pos=0,cur=null,total=0,st=null,it=null,sx=null,block=0;let players=[{name:"Jugador 1",score:0,a:0,s:0,y:0},{name:"Jugador 2",score:0,a:0,s:0,y:0}],turn=0;
-for(let y=1960;y<=2026;y++){yf.add(new Option(y,y));yt.add(new Option(y,y))} yf.value=1960;yt.value=2026;
-function sh(a){a=[...a];for(let i=a.length-1;i;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function b64(b){return btoa(String.fromCharCode(...b)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")} async function sha(s){return new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))} function ver(){return b64(crypto.getRandomValues(new Uint8Array(64)))} function show(x){status.textContent=x}
+const CLIENT_ID="4473f3716282436ea5312f0aba46455b";
+const REDIRECT_URI=location.origin+location.pathname;
+const SCOPES=["user-read-playback-state","user-modify-playback-state"];
+const $=id=>document.getElementById(id);
 
-function playedSet(){try{return new Set(JSON.parse(localStorage.getItem("hit30_played_v10")||"[]"))}catch(e){return new Set()}}
-function savePlayed(s){localStorage.setItem("hit30_played_v10",JSON.stringify([...s]));updateHistoryInfo()}
-function updateHistoryInfo(){let n=playedSet().size;if(window.historyInfo)historyInfo.textContent=`${n} canciones ya utilizadas. No volverán a salir hasta reiniciar el historial.`}
-function artistTokens(s){
- return (s||"").toLowerCase()
-   .replace(/\b(feat\.?|featuring|with|x)\b/g,"/")
-   .split(/\/|,|&| y /)
-   .map(x=>x.trim()).filter(x=>x.length>1)
+const MODES={
+ clasico:{name:"CLÁSICO",icon:"🎧",desc:"Grandes éxitos en España",theme:["#8d5cff","#ff5f9e","#4ab7ff"],catalog:()=>window.HIT30_CATALOG||[],years:[1960,2026],score:["Artista","Canción","Año"],answers:["title","artist","year"],origin:true},
+ cine:{name:"CINE",icon:"🎬",desc:"Bandas sonoras y canciones de película",theme:["#b7192f","#e7a23a","#70213b"],catalog:()=>window.HIT30_CINE||[],years:[1927,2026],score:["Tema","Película","Año"],answers:["title","movie","movie_year"],origin:false},
+ latino:{name:"LATINO",icon:"🌴",desc:"Música latina con impacto en España",theme:["#ff633d","#e33192","#19a4a1"],catalog:()=>window.HIT30_LATINO||[],years:[1950,2026],score:["Artista","Canción","Año"],answers:["title","artist","year"],origin:true},
+ ot:{name:"OT",icon:"🎤",desc:"Toda la historia de Operación Triunfo",theme:["#175adf","#6e35d9","#e243bd"],catalog:()=>window.HIT30_OT||[],years:[2001,2026],score:["Artista","Tema","Edición OT"],answers:["title","artist","edition"],origin:false},
+ verano:{name:"VERANO",icon:"☀️",desc:"Los hits de los veranos en España",theme:["#10b4d3","#43d4a0","#f4a72c"],catalog:()=>window.HIT30_VERANO||[],years:[1960,2026],score:["Artista","Canción","Verano"],answers:["title","artist","summer_year"],origin:true},
+ tv:{name:"TV",icon:"📺",desc:"Series, dibujos y programas míticos",theme:["#315d4d","#a08b2c","#d15e28"],catalog:()=>window.HIT30_TV||[],years:[1956,2026],score:["Sintonía/Tema","Serie/Programa","Año"],answers:["title","show","spain_year"],origin:false}
+};
+let modeKey="clasico",mode=MODES.clasico,TRACKS=[],deck=[],pos=0,total=0,cur=null,gameSize=30,players=[],turn=0,st=null,it=null,block=0;
+
+function setTheme(m){document.documentElement.style.setProperty("--a",m.theme[0]);document.documentElement.style.setProperty("--b",m.theme[1]);document.documentElement.style.setProperty("--c",m.theme[2])}
+function showOnly(id){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden"));$(id).classList.remove("hidden");scrollTo(0,0)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
+
+function renderModes(){
+ modeGrid.innerHTML="";
+ Object.entries(MODES).forEach(([k,m])=>{
+  let n=m.catalog().length,active=n>0;
+  let d=document.createElement("div");d.className=`modeCard ${k} ${active?"":"disabledMode"}`;
+  d.innerHTML=`${active?"":'<div class="badge">CATÁLOGO PENDIENTE</div>'}<div class="modeIcon">${m.icon}</div><div class="modeName">${m.name}</div><div class="modeDesc">${m.desc}</div><div class="modeCount">${active?`${n.toLocaleString("es-ES")} tarjetas`:"Preparado para cargar catálogo"}</div>`;
+  d.onclick=()=>selectMode(k);modeGrid.appendChild(d)
+ })
 }
-function separateArtists(list,minGap=9){
- let src=[...list],out=[],recent=[];
- while(src.length){
-   let idx=src.findIndex(x=>{
-     let toks=artistTokens(x.artist);
-     return !toks.some(t=>recent.includes(t))
-   });
-   if(idx<0)idx=0;
-   let [x]=src.splice(idx,1);out.push(x);
-   artistTokens(x.artist).forEach(t=>recent.push(t));
-   if(recent.length>minGap*2)recent=recent.slice(-minGap*2)
- }
+function selectMode(k){
+ modeKey=k;mode=MODES[k];TRACKS=mode.catalog();setTheme(mode);
+ if(!TRACKS.length){alert(`La modalidad ${mode.name} ya está preparada en la aplicación, pero su catálogo específico todavía no está cargado.`);return}
+ setupTitle.textContent=`HIT30 ${mode.name}`;setupSub.textContent=mode.desc;setupBrand.textContent=`HIT30 ${mode.name}`;gameBrand.textContent=`HIT30 ${mode.name}`;
+ originField.classList.toggle("hidden",!mode.origin);buildYears();buildDecades();updateHistory();resetModeHistory.textContent=`Reiniciar tarjetas de HIT30 ${mode.name}`;
+ showOnly("setup")
+}
+function buildYears(){
+ yearFrom.innerHTML="";yearTo.innerHTML="";
+ for(let y=mode.years[0];y<=mode.years[1];y++){yearFrom.add(new Option(y,y));yearTo.add(new Option(y,y))}
+ yearFrom.value=mode.years[0];yearTo.value=mode.years[1]
+}
+function buildDecades(){
+ decadeBtns.innerHTML="";
+ let start=Math.floor(mode.years[0]/10)*10,end=Math.floor(mode.years[1]/10)*10;
+ for(let y=start;y<=end;y+=10){let b=document.createElement("button");b.textContent=(y%100).toString().padStart(2,"0")+"s";b.onclick=()=>{yearFrom.value=Math.max(y,mode.years[0]);yearTo.value=Math.min(y+9,mode.years[1]);document.querySelectorAll("#decadeBtns button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")};decadeBtns.appendChild(b)}
+ let all=document.createElement("button");all.textContent="Todas";all.onclick=()=>{yearFrom.value=mode.years[0];yearTo.value=mode.years[1];document.querySelectorAll("#decadeBtns button").forEach(x=>x.classList.remove("sel"));all.classList.add("sel")};decadeBtns.appendChild(all)
+}
+function historyKey(){return "hit30_history_"+modeKey}
+function usedSet(){try{return new Set(JSON.parse(localStorage.getItem(historyKey())||"[]"))}catch(e){return new Set()}}
+function saveUsed(s){localStorage.setItem(historyKey(),JSON.stringify([...s]));updateHistory()}
+function updateHistory(){let n=usedSet().size,max=TRACKS.length;historyInfo.textContent=`Utilizadas: ${n.toLocaleString("es-ES")} / ${max.toLocaleString("es-ES")}`}
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function artistKey(x){return (x.artist||x.composer||x.performer||x.movie||x.show||"").toLowerCase()}
+function separate(items,gap=7){
+ let src=[...items],out=[],recent=[];
+ while(src.length){let idx=src.findIndex(x=>!recent.includes(artistKey(x)));if(idx<0)idx=0;let x=src.splice(idx,1)[0];out.push(x);recent.push(artistKey(x));if(recent.length>gap)recent.shift()}
  return out
 }
-function pool(){
- let used=playedSet();
- let a=TRACKS.filter(t=>t.year>=+yf.value&&t.year<=+yt.value&&!used.has(t.id));
- let n=Math.min(+size.value,a.length);
- return separateArtists(sh(a).slice(0,n),9)
+function makeDeck(){
+ let used=usedSet(),from=+yearFrom.value,to=+yearTo.value;
+ let a=TRACKS.filter(t=>{let y=+(t.year??t.movie_year??t.summer_year??t.spain_year??0);return y>=from&&y<=to&&!used.has(t.id)});
+ if(mode.origin&&!originField.classList.contains("hidden")&&origin.value!=="ALL")a=a.filter(t=>t.origin===origin.value);
+ return separate(shuffle(a).slice(0,Math.min(gameSize,a.length)),7)
 }
-function updateScoreboard(){pname0.textContent=players[0].name;pname1.textContent=players[1].name;pscore0.textContent=players[0].score;pscore1.textContent=players[1].score;pbox0.classList.toggle("active",turn===0);pbox1.classList.toggle("active",turn===1);turnLabel.textContent=`Turno de ${players[turn].name}`}
-async function enterFullscreen(){
- try{
-   if(!document.fullscreenElement && document.documentElement.requestFullscreen){
-     await document.documentElement.requestFullscreen({navigationUI:"hide"});
-   }
- }catch(e){}
+function start(){
+ deck=makeDeck();if(!deck.length){alert("No quedan tarjetas disponibles con esos filtros. Cambia el periodo o reinicia las tarjetas de esta modalidad.");return}
+ total=deck.length;pos=0;cur=deck[0];turn=0;players=[{name:p1.value.trim()||"Jugador 1",score:0,a:0,b:0,c:0},{name:p2.value.trim()||"Jugador 2",score:0,a:0,b:0,c:0}];renderCard();showOnly("game")
 }
-function begin(){enterFullscreen();if(+yf.value>+yt.value)return alert("Revisa el intervalo de años.");deck=pool();if(!deck.length)return alert("Ya has utilizado todas las canciones disponibles con esos filtros. Cambia filtros o reinicia el historial.");players=[{name:(p1name.value.trim()||"Jugador 1"),score:0,a:0,s:0,y:0},{name:(p2name.value.trim()||"Jugador 2"),score:0,a:0,s:0,y:0}];turn=0;pos=0;total=deck.length;cur=deck[0];setup.classList.add("hidden");endPanel.classList.add("hidden");game.classList.remove("hidden");render()}
-function render(){let used=playedSet();used.add(cur.id);savePlayed(used);card.classList.remove("flip");next.classList.add("hidden");pause.classList.add("hidden");timer.textContent=30;num.textContent="Tarjeta "+(pos+1);count.textContent=(pos+1)+" / "+total;year.textContent=cur.year;title.textContent=cur.title;artist.textContent=cur.artist;cover.classList.remove("show");cover.removeAttribute("src");bar.style.width=((pos+1)/total*100)+"%";chkArtist.checked=chkSong.checked=chkYear.checked=false;updateScoreboard();auth();loadCover()}
-function applyCardScore(){let a=chkArtist.checked?1:0,s=chkSong.checked?1:0,y=chkYear.checked?1:0;players[turn].score+=a+s+y;players[turn].a+=a;players[turn].s+=s;players[turn].y+=y}
+function markCurrentUsed(){let s=usedSet();if(cur?.id&&!s.has(cur.id)){s.add(cur.id);saveUsed(s)}}
+function renderScore(){pname0.textContent=players[0].name;pname1.textContent=players[1].name;pscore0.textContent=players[0].score;pscore1.textContent=players[1].score;pbox0.classList.toggle("active",turn===0);pbox1.classList.toggle("active",turn===1);turnLabel.textContent=`Turno de ${players[turn].name}`}
+function val(obj,key){return obj?.[key]??""}
+function renderCard(){
+ card.classList.remove("flip");next.classList.add("hidden");pause.classList.add("hidden");timer.textContent=30;counter.textContent=`${pos+1} / ${total}`;cardNum.textContent=`Tarjeta ${pos+1}`;cover.removeAttribute("src");cover.style.display="none";bar.style.width=`${((pos+1)/total)*100}%`;renderScore();buildChecks();auth();loadMeta()
+}
+function buildChecks(){
+ checks.innerHTML="";mode.score.forEach((label,i)=>{let r=document.createElement("div");r.className="checkRow";r.innerHTML=`<label>${esc(label)} +1</label><input type="checkbox" data-score="${i}">`;r.addEventListener("click",e=>e.stopPropagation());r.addEventListener("touchstart",e=>e.stopPropagation(),{passive:true});checks.appendChild(r)})
+}
+function applyScore(){
+ [...checks.querySelectorAll("input")].forEach((x,i)=>{if(x.checked){players[turn].score++;if(i===0)players[turn].a++;if(i===1)players[turn].b++;if(i===2)players[turn].c++}})
+}
+function flipCard(){if(Date.now()<block)return;card.classList.toggle("flip");if(card.classList.contains("flip"))next.classList.remove("hidden")}
+function nextCard(){
+ applyScore();markCurrentUsed();
+ if(pos+1>=total){finish();return}
+ turn=1-turn;cur=deck[++pos];stopPlayback(true);renderCard()
+}
+function finish(){
+ stopPlayback(true);let sorted=[...players].sort((a,b)=>b.score-a.score);let tie=sorted[0].score===sorted[1].score;
+ podium.innerHTML=tie?`<div class="winnerCard"><div class="place">🤝 EMPATE</div><div class="bigScore">${sorted[0].score} - ${sorted[1].score}</div><div>${esc(sorted[0].name)} · ${esc(sorted[1].name)}</div></div>`:
+ `<div class="winnerCard"><div class="place">🏆 GANADOR</div><div style="font-size:22px;font-weight:950">${esc(sorted[0].name)}</div><div class="bigScore">${sorted[0].score}</div><div class="stats">${mode.score[0]} ${sorted[0].a} · ${mode.score[1]} ${sorted[0].b} · ${mode.score[2]} ${sorted[0].c}</div></div><div class="secondCard"><div class="place">2º PUESTO</div><div style="font-size:19px;font-weight:900">${esc(sorted[1].name)} · ${sorted[1].score} pts</div><div class="stats">${mode.score[0]} ${sorted[1].a} · ${mode.score[1]} ${sorted[1].b} · ${mode.score[2]} ${sorted[1].c}</div></div>`;
+ saveRanking(sorted,tie);showOnly("end")
+}
+function saveRanking(sorted,tie){
+ let data=JSON.parse(localStorage.getItem("hit30_ranking")||"{}");data[modeKey]??={};
+ players.forEach(p=>{data[modeKey][p.name]??={wins:0,games:0,points:0};data[modeKey][p.name].games++;data[modeKey][p.name].points+=p.score});
+ if(!tie)data[modeKey][sorted[0].name].wins++;
+ localStorage.setItem("hit30_ranking",JSON.stringify(data))
+}
+function renderRanking(){
+ rankMode.innerHTML='<option value="all">General</option>'+Object.entries(MODES).map(([k,m])=>`<option value="${k}">${m.name}</option>`).join("");
+ showRanking()
+}
+function showRanking(){
+ let d=JSON.parse(localStorage.getItem("hit30_ranking")||"{}"),agg={};
+ let keys=rankMode.value==="all"?Object.keys(MODES):[rankMode.value];
+ keys.forEach(k=>Object.entries(d[k]||{}).forEach(([n,s])=>{agg[n]??={wins:0,games:0,points:0};agg[n].wins+=s.wins;agg[n].games+=s.games;agg[n].points+=s.points}));
+ let rows=Object.entries(agg).sort((a,b)=>b[1].wins-a[1].wins||b[1].points-a[1].points);
+ rankList.innerHTML=rows.length?rows.map(([n,s],i)=>`<div class="rankRow"><div class="rankPos">${i+1}</div><div><b>${esc(n)}</b><div class="rankMeta">${s.games} partidas · ${s.points} puntos</div></div><b>${s.wins} 🏆</b></div>`).join(""):'<div style="color:#aaa;text-align:center;padding:20px">Todavía no hay partidas registradas.</div>'
+}
 
-let mbLast=0;
-function mbKey(){return (cur.artist+"|"+cur.title).toLowerCase()}
-async function originalYear(){
- const k=mbKey();
- try{
-   const cache=JSON.parse(localStorage.getItem("hit30_year_cache_v10")||"{}");
-   if(cache[k])return cache[k];
-   const wait=Math.max(0,1100-(Date.now()-mbLast));
-   if(wait)await new Promise(r=>setTimeout(r,wait));
-   mbLast=Date.now();
-   const q=`recording:"${cur.title.replace(/"/g,"")}" AND artist:"${cur.artist.split("/")[0].trim().replace(/"/g,"")}"`;
-   const r=await fetch("https://musicbrainz.org/ws/2/recording/?fmt=json&limit=5&query="+encodeURIComponent(q));
-   if(!r.ok)throw Error("MB");
-   const d=await r.json();
-   const rec=(d.recordings||[]).find(x=>x["first-release-date"]&&/^\d{4}/.test(x["first-release-date"]));
-   if(rec){
-     const y=rec["first-release-date"].slice(0,4);
-     cache[k]=y;localStorage.setItem("hit30_year_cache_v10",JSON.stringify(cache));
-     return y
-   }
- }catch(e){}
- return String(cur.year)
+function b64url(bytes){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+async function sha256(s){return new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)))}
+function verifier(){return b64url(crypto.getRandomValues(new Uint8Array(64)))}
+async function loginSpotify(){
+ let v=verifier();sessionStorage.v=v;sessionStorage.state=crypto.randomUUID();sessionStorage.resume=JSON.stringify({modeKey,ids:deck.map(x=>x.id),pos,total,players,turn});
+ let p=new URLSearchParams({client_id:CLIENT_ID,response_type:"code",redirect_uri:REDIRECT_URI,code_challenge_method:"S256",code_challenge:b64url(await sha256(v)),state:sessionStorage.state,scope:SCOPES.join(" ")});location.href="https://accounts.spotify.com/authorize?"+p
 }
-async function revealYear(){
- const y=await originalYear();
- if(card.classList.contains("flip"))year.textContent=y;
+async function exchange(code){
+ let b=new URLSearchParams({client_id:CLIENT_ID,grant_type:"authorization_code",code,redirect_uri:REDIRECT_URI,code_verifier:sessionStorage.v});
+ let r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:b});if(!r.ok)throw Error("No se pudo conectar con Spotify");let t=await r.json();localStorage.at=t.access_token;localStorage.exp=Date.now()+t.expires_in*1000;if(t.refresh_token)localStorage.rt=t.refresh_token;history.replaceState({},"",REDIRECT_URI)
 }
-function flip(){if(Date.now()<block)return;card.classList.toggle("flip");if(card.classList.contains("flip")){next.classList.remove("hidden");revealYear()}}
-function finishGame(){applyCardScore();stop(true);game.classList.add("hidden");endPanel.classList.remove("hidden");let p0=players[0],p1=players[1];winner.textContent=p0.score===p1.score?`Empate: ${p0.score} - ${p1.score}`:(p0.score>p1.score?`🏆 ${p0.name} gana ${p0.score} - ${p1.score}`:`🏆 ${p1.name} gana ${p1.score} - ${p0.score}`);endStats.innerHTML=`<div class="statline"><b>${p0.name}</b><b>${p0.score} puntos</b></div><div class="statline"><span>Artistas ${p0.a} · Canciones ${p0.s} · Años ${p0.y}</span></div><hr style="border-color:#333"><div class="statline"><b>${p1.name}</b><b>${p1.score} puntos</b></div><div class="statline"><span>Artistas ${p1.a} · Canciones ${p1.s} · Años ${p1.y}</span></div>`}
-function nxt(){if(pos+1>=total){finishGame();return}applyCardScore();turn=1-turn;stop(true);cur=deck[++pos];render()}
-async function loginFn(){let v=ver();sessionStorage.v=v;sessionStorage.state=crypto.randomUUID();sessionStorage.resume=JSON.stringify({ids:deck.map(x=>x.id),pos,total,players,turn});let p=new URLSearchParams({client_id:CLIENT_ID,response_type:"code",redirect_uri:REDIRECT_URI,code_challenge_method:"S256",code_challenge:b64(await sha(v)),state:sessionStorage.state,scope:SCOPES.join(" ")});location.href="https://accounts.spotify.com/authorize?"+p}
-async function exchange(c){let b=new URLSearchParams({client_id:CLIENT_ID,grant_type:"authorization_code",code:c,redirect_uri:REDIRECT_URI,code_verifier:sessionStorage.v}),r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:b});if(!r.ok)throw Error("No se pudo conectar con Spotify");let t=await r.json();localStorage.at=t.access_token;localStorage.exp=Date.now()+t.expires_in*1000;if(t.refresh_token)localStorage.rt=t.refresh_token;history.replaceState({},"",REDIRECT_URI)}
 async function refresh(){if(!localStorage.rt)return false;let b=new URLSearchParams({client_id:CLIENT_ID,grant_type:"refresh_token",refresh_token:localStorage.rt}),r=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:b});if(!r.ok)return false;let t=await r.json();localStorage.at=t.access_token;localStorage.exp=Date.now()+t.expires_in*1000;if(t.refresh_token)localStorage.rt=t.refresh_token;return true}
-async function tok(){if(Date.now()<+(localStorage.exp||0)-30000)return localStorage.at;if(await refresh())return localStorage.at;return null}
-async function api(p,o={}){let t=await tok();if(!t)throw Error("LOGIN");let r=await fetch("https://api.spotify.com/v1"+p,{...o,headers:{Authorization:"Bearer "+t,"Content-Type":"application/json",...(o.headers||{})}});if(r.status===401&&await refresh())return api(p,o);return r}
-async function dev(){let r=await api("/me/player/devices");if(!r.ok)return null;let d=(await r.json()).devices||[];return d.find(x=>x.is_active)||d[0]||null}
+async function token(){if(Date.now()<+(localStorage.exp||0)-30000)return localStorage.at;if(await refresh())return localStorage.at;return null}
+async function api(p,o={}){let t=await token();if(!t)throw Error("LOGIN");let r=await fetch("https://api.spotify.com/v1"+p,{...o,headers:{Authorization:"Bearer "+t,"Content-Type":"application/json",...(o.headers||{})}});if(r.status===401&&await refresh())return api(p,o);return r}
+async function device(){let r=await api("/me/player/devices");if(!r.ok)return null;let d=(await r.json()).devices||[];return d.find(x=>x.is_active)||d[0]||null}
 async function resolve(){
  if(cur.uri)return cur.uri;
- let x=null;
- if(cur.spotify_id){
-   try{
-     let tr=await api("/tracks/"+encodeURIComponent(cur.spotify_id)+"?market=ES");
-     if(tr.ok)x=await tr.json();
-   }catch(e){}
- }
- if(!x){
-   let q="track:"+cur.title+" artist:"+cur.artist;
-   let r=await api("/search?type=track&limit=5&market=ES&q="+encodeURIComponent(q));
-   let d=await r.json(),a=d.tracks?.items||[];
-   if(!a.length){
-     r=await api("/search?type=track&limit=5&market=ES&q="+encodeURIComponent(cur.title+" "+cur.artist));
-     d=await r.json();a=d.tracks?.items||[]
-   }
-   if(!a.length)throw Error("NF");
-   x=a[0]
- }
- cur.uri=x.uri;
- cur.spotify_id=x.id||cur.spotify_id||"";
- cur.cover=x.album?.images?.[0]?.url||"";
- cur.duration=x.duration_ms||0;
- return cur.uri
+ let q=cur.spotify_id?null:`track:${cur.title||""} artist:${cur.artist||cur.performer||""}`;
+ let r=cur.spotify_id?await api("/tracks/"+cur.spotify_id+"?market=ES"):await api("/search?type=track&limit=5&market=ES&q="+encodeURIComponent(q));
+ let x;
+ if(cur.spotify_id){x=await r.json()}else{x=(await r.json()).tracks?.items?.[0]}
+ if(!x)throw Error("NF");cur.uri=x.uri;cur.duration=x.duration_ms||0;cur.cover=x.album?.images?.[0]?.url||"";return cur.uri
 }
-async function loadCover(){try{await resolve();if(cur.cover){cover.src=cur.cover;cover.classList.add("show")}}catch(e){}}
-async function playFn(e){e?.stopPropagation();enterFullscreen();block=Date.now()+400;try{let d=await dev();if(!d)return show("Abre Spotify, reproduce cualquier canción unos segundos y vuelve.");let u=await resolve();let dur=cur.duration||180000,margin=8000,clip=30000,maxStart=Math.max(margin,dur-clip-margin),startMs=dur>clip+margin*2?Math.floor(margin+Math.random()*(maxStart-margin)):0;let r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({uris:[u],position_ms:startMs})});if(!r.ok)return show("Spotify no pudo iniciar esta pista.");play.classList.add("hidden");pause.classList.remove("hidden");let l=30;timer.textContent=l;show("¡Escucha y adivina!");it=setInterval(()=>timer.textContent=Math.max(0,--l),1000);st=setTimeout(async()=>{await stop(true);play.classList.remove("hidden");show("Tiempo terminado. Descubre la respuesta.")},30000)}catch(e){if(e.message==="LOGIN")auth();else show("No se pudo reproducir esta tarjeta.")}}
-async function stop(silent=false){clearTimeout(st);clearInterval(it);try{if(await tok())await api("/me/player/pause",{method:"PUT"})}catch(e){}timer.textContent=30;pause.classList.add("hidden");if(!silent){play.classList.remove("hidden");show("Reproducción detenida.")}}
-async function auth(){if(await tok()){login.classList.add("hidden");play.classList.remove("hidden");show("Tarjeta lista.");loadCover()}else{play.classList.add("hidden");login.classList.remove("hidden");show("Conecta Spotify para jugar.")}}
-scene.onclick=e=>{if(!e.target.closest("button"))flip()};scene.addEventListener("touchstart",e=>sx=e.changedTouches[0].screenX,{passive:true});scene.addEventListener("touchend",e=>{if(sx===null)return;let dx=e.changedTouches[0].screenX-sx;sx=null;if(Math.abs(dx)>45)flip()},{passive:true});
-start.onclick=begin;resetHistory.onclick=()=>{if(confirm("¿Permitir que vuelvan a salir todas las canciones?")){localStorage.removeItem("hit30_played_v10");updateHistoryInfo()}};updateHistoryInfo();document.querySelectorAll("#decades button").forEach(b=>b.onclick=()=>{yf.value=b.dataset.from;yt.value=b.dataset.to;document.querySelectorAll("#decades button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")});backHome.onclick=()=>{endPanel.classList.add("hidden");setup.classList.remove("hidden")};login.onclick=loginFn;play.onclick=playFn;pause.onclick=e=>{e.stopPropagation();stop(false)};next.onclick=nxt;newg.onclick=()=>{if(confirm("¿Nueva partida? Las canciones ya utilizadas seguirán bloqueadas.")){stop(true);game.classList.add("hidden");setup.classList.remove("hidden")}};
-(async()=>{let q=new URLSearchParams(location.search);if(q.get("code"))try{if(q.get("state")!==sessionStorage.state)throw Error("Autorización no válida");await exchange(q.get("code"));let r=JSON.parse(sessionStorage.resume||"null");if(r){deck=r.ids.map(id=>TRACKS.find(t=>t.id===id)).filter(Boolean);pos=r.pos;total=r.total;players=r.players||players;turn=r.turn||0;cur=deck[pos];setup.classList.add("hidden");game.classList.remove("hidden");render()}}catch(e){alert(e.message)}})();
+async function loadMeta(){
+ answer1.textContent=val(cur,mode.answers[0])||cur.title||"";
+ answer2.textContent=val(cur,mode.answers[1])||cur.artist||"";
+ answer3.textContent=val(cur,mode.answers[2])||cur.year||"";
+ extraInfo.textContent=cur.composer||cur.performer||"";
+ try{await resolve();if(cur.cover){cover.src=cur.cover;cover.style.display="block"}}catch(e){}
+}
+async function play30(e){
+ e?.stopPropagation();block=Date.now()+400;
+ try{
+  let d=await device();if(!d){status.textContent="Abre Spotify, reproduce cualquier canción unos segundos y vuelve.";return}
+  let uri=await resolve(),dur=cur.duration||180000,clip=30000,margin=8000,max=Math.max(margin,dur-clip-margin),start=dur>clip+margin*2?Math.floor(margin+Math.random()*(max-margin)):0;
+  let r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({uris:[uri],position_ms:start})});if(!r.ok){status.textContent="Spotify no pudo iniciar la pista.";return}
+  play.classList.add("hidden");pause.classList.remove("hidden");let n=30;timer.textContent=n;status.textContent="¡Escucha y adivina!";it=setInterval(()=>timer.textContent=Math.max(0,--n),1000);st=setTimeout(async()=>{await stopPlayback(true);play.classList.remove("hidden");status.textContent="Tiempo terminado. Descubre la respuesta."},30000)
+ }catch(e){if(e.message==="LOGIN")auth();else status.textContent="No se pudo reproducir esta tarjeta."}
+}
+async function stopPlayback(silent=false){clearTimeout(st);clearInterval(it);try{if(await token())await api("/me/player/pause",{method:"PUT"})}catch(e){}timer.textContent=30;pause.classList.add("hidden");if(!silent){play.classList.remove("hidden");status.textContent="Reproducción detenida."}}
+async function auth(){if(await token()){login.classList.add("hidden");play.classList.remove("hidden");status.textContent="Tarjeta lista."}else{play.classList.add("hidden");login.classList.remove("hidden");status.textContent="Conecta Spotify para jugar."}}
+
+goModes.onclick=()=>{renderModes();showOnly("modes")};goRanking.onclick=()=>{renderRanking();showOnly("ranking")};document.querySelectorAll(".backHome").forEach(b=>b.onclick=()=>{setTheme(MODES.clasico);showOnly("home")});backModes.onclick=()=>{renderModes();showOnly("modes")};
+sizeBtns.querySelectorAll("button").forEach(b=>b.onclick=()=>{gameSize=+b.dataset.size;sizeBtns.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")});
+startGame.onclick=start;resetModeHistory.onclick=()=>{if(confirm(`¿Reiniciar las tarjetas utilizadas de HIT30 ${mode.name}?`)){localStorage.removeItem(historyKey());updateHistory()}};
+scene.onclick=e=>{if(e.target.closest("button,input,label,.checks"))return;flipCard()};backFace.addEventListener("click",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()});backFace.addEventListener("touchstart",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()},{passive:true});
+login.onclick=loginSpotify;play.onclick=play30;pause.onclick=e=>{e.stopPropagation();stopPlayback(false)};next.onclick=nextCard;quitGame.onclick=()=>{if(confirm("¿Salir de la partida? La tarjeta actual no contará como utilizada hasta pasar a la siguiente.")){stopPlayback(true);showOnly("setup")}};endHome.onclick=()=>{setTheme(MODES.clasico);showOnly("home")};rankMode.onchange=showRanking;
+
+(async()=>{
+ if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).catch(()=>{});
+ let q=new URLSearchParams(location.search);
+ if(q.get("code"))try{
+  if(q.get("state")!==sessionStorage.state)throw Error("Autorización no válida");await exchange(q.get("code"));
+  let r=JSON.parse(sessionStorage.resume||"null");if(r){modeKey=r.modeKey;mode=MODES[modeKey];TRACKS=mode.catalog();setTheme(mode);deck=r.ids.map(id=>TRACKS.find(t=>t.id===id)).filter(Boolean);pos=r.pos;total=r.total;players=r.players;turn=r.turn;cur=deck[pos];renderCard();showOnly("game")}
+ }catch(e){alert(e.message)}
+})();
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    try {
-      const reg = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
-      await reg.update();
-
-      let refreshing = false;
-      navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (refreshing) return;
-        refreshing = true;
-        location.reload();
-      });
-    } catch (e) {}
-  });
-}
-</script></body></html>
+</body>
+</html>

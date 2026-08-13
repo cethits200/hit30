@@ -1,58 +1,28 @@
 
-const CACHE = 'hit30-shell-v10';
-const STATIC_ASSETS = [
-  './manifest-v10.webmanifest?v=10',
-  './catalogo-v10.js?v=10',
-  './hit30-final-192.png?v=10',
-  './hit30-final-512.png?v=10'
+const CACHE="hit30-v12-shell";
+const STATIC=[
+ "./",
+ "./index.html",
+ "./manifest-v12.webmanifest",
+ "./hit30-final-192.png",
+ "./hit30-final-512.png",
+ "./catalogo-clasico.js",
+ "./catalogo-cine.js",
+ "./catalogo-latino.js",
+ "./catalogo-ot.js",
+ "./catalogo-verano.js",
+ "./catalogo-tv.js"
 ];
-
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE)
-      .then(cache => cache.addAll(STATIC_ASSETS))
-      .then(() => self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-
-  const url = new URL(event.request.url);
-
-  // Always try the network first for the app shell/navigation.
-  if (event.request.mode === 'navigate' || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/hit30/')) {
-    event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache => cache.put('./index.html', copy));
-          return response;
-        })
-        .catch(() => caches.match('./index.html').then(r => r || caches.match('./')))
-    );
-    return;
-  }
-
-  // Static same-origin assets: serve cache, refresh in background.
-  if (url.origin === self.location.origin) {
-    event.respondWith(
-      caches.match(event.request).then(cached => {
-        const network = fetch(event.request).then(response => {
-          const copy = response.clone();
-          caches.open(CACHE).then(cache => cache.put(event.request, copy));
-          return response;
-        }).catch(() => cached);
-        return cached || network;
-      })
-    );
-  }
+self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)).then(()=>self.skipWaiting())));
+self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener("fetch",e=>{
+ if(e.request.method!=="GET")return;
+ const u=new URL(e.request.url);
+ if(e.request.mode==="navigate"){
+   e.respondWith(fetch(e.request,{cache:"no-store"}).catch(()=>caches.match("./index.html")));
+   return;
+ }
+ if(u.origin===location.origin){
+   e.respondWith(fetch(e.request,{cache:"no-store"}).then(r=>{const c=r.clone();caches.open(CACHE).then(k=>k.put(e.request,c));return r}).catch(()=>caches.match(e.request)));
+ }
 });
