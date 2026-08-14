@@ -1,1 +1,0 @@
-window.HIT30_LATINO=[];
