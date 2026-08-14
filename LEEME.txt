@@ -1,0 +1,5 @@
+HIT30 DEFINITIVO — V13
+Incluye los modos Clásico, Cine, Latino, OT, Verano, TV y España.
+España utiliza estética rojo-amarillo-rojo y catálogo de 5.000 tarjetas.
+IMPORTANTE: el catálogo Cine incluido en esta carpeta procede de la estructura V12 y está pendiente de sustituir por el catálogo Cine completo si no estuviera cargado.
+Para Spotify, conservar la configuración del Client ID/Redirect URI utilizada en la versión funcional.
