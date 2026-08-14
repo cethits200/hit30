@@ -1,0 +1,10 @@
+{
+  "cine_cards": 1500,
+  "cine_unique_movie_title": 1500,
+  "cine_unique_films": 146,
+  "cine_year_min": 1937,
+  "cine_year_max": 2023,
+  "spotify_player_hidden_css": true,
+  "spotify_dynamic_hide_guard": true,
+  "espana_catalog_present": true
+}
