@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>HIT30 Definitivo V14.4</title>
+<title>HIT30 Definitivo V14.5</title>
 <meta name="theme-color" content="#aa151b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.4">
+<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.5">
 <link rel="apple-touch-icon" href="hit30-final-192.png?v=12">
 <style>
 :root{
@@ -120,6 +120,37 @@ body{
 }
 .failCardBtn:active{transform:scale(.985)}
 
+
+/* V14.5 — ocultación total de la interfaz visible de Spotify */
+iframe[src*="spotify.com"],
+iframe[src*="open.spotify"],
+iframe[title*="Spotify"],
+iframe[aria-label*="Spotify"],
+.spotify-player,.spotifyPlayer,#spotify-player,#spotifyPlayer,
+.spotify-embed,.spotify-iframe,[class*="spotify"][class*="player"],
+[id*="spotify"][id*="player"],
+[data-testid*="spotify"],
+[data-spotify-uri],
+.spotify-overlay,.spotify-widget{
+  position:fixed!important;
+  left:-99999px!important;
+  top:-99999px!important;
+  width:1px!important;
+  height:1px!important;
+  min-width:1px!important;
+  min-height:1px!important;
+  max-width:1px!important;
+  max-height:1px!important;
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+  z-index:-2147483648!important;
+  border:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+}
+
 </style>
 </head>
 <body>
@@ -198,13 +229,13 @@ body{
 
 </div>
 
-<script src="catalogo-clasico.js?v=14.4"></script>
-<script src="catalogo-cine.js?v=14.4"></script>
-<script src="catalogo-latino.js?v=14.4"></script>
-<script src="catalogo-ot.js?v=14.4"></script>
-<script src="catalogo-verano.js?v=14.4"></script>
-<script src="catalogo-tv.js?v=14.4"></script>
-<script src="catalogo-espana.js?v=14.4"></script>
+<script src="catalogo-clasico.js?v=14.5"></script>
+<script src="catalogo-cine.js?v=14.5"></script>
+<script src="catalogo-latino.js?v=14.5"></script>
+<script src="catalogo-ot.js?v=14.5"></script>
+<script src="catalogo-verano.js?v=14.5"></script>
+<script src="catalogo-tv.js?v=14.5"></script>
+<script src="catalogo-espana.js?v=14.5"></script>
 <script>
 const CLIENT_ID="4473f3716282436ea5312f0aba46455b";
 const REDIRECT_URI=location.origin+location.pathname;
@@ -429,5 +460,52 @@ loginBtn.onclick=loginSpotify;playBtn.onclick=play30;pauseBtn.onclick=e=>{e.stop
   addEventListener('load',hideSpotifyUI);
 })();
 </script>
+
+<script>
+(function(){
+  function hideSpotifyUI(){
+    const selectors=[
+      'iframe[src*="spotify.com"]','iframe[src*="open.spotify"]',
+      'iframe[title*="Spotify"]','iframe[aria-label*="Spotify"]',
+      '.spotify-player','.spotifyPlayer','#spotify-player','#spotifyPlayer',
+      '.spotify-embed','.spotify-iframe','[data-testid*="spotify"]',
+      '[data-spotify-uri]','.spotify-overlay','.spotify-widget'
+    ];
+    document.querySelectorAll(selectors.join(',')).forEach(el=>{
+      el.setAttribute('aria-hidden','true');
+      el.style.setProperty('position','fixed','important');
+      el.style.setProperty('left','-99999px','important');
+      el.style.setProperty('top','-99999px','important');
+      el.style.setProperty('width','1px','important');
+      el.style.setProperty('height','1px','important');
+      el.style.setProperty('opacity','0','important');
+      el.style.setProperty('visibility','hidden','important');
+      el.style.setProperty('pointer-events','none','important');
+      el.style.setProperty('z-index','-2147483648','important');
+    });
+
+    // Si algún contenedor visible contiene únicamente el iframe de Spotify, colapsarlo también.
+    document.querySelectorAll('iframe[src*="spotify"],iframe[title*="Spotify"]').forEach(frame=>{
+      let p=frame.parentElement;
+      for(let i=0;i<3 && p;i++,p=p.parentElement){
+        const txt=(p.innerText||'').trim();
+        if(p.children.length<=2 && txt.length<80){
+          p.style.setProperty('min-height','0','important');
+          p.style.setProperty('height','0','important');
+          p.style.setProperty('overflow','hidden','important');
+          p.style.setProperty('margin','0','important');
+          p.style.setProperty('padding','0','important');
+        }
+      }
+    });
+  }
+  const obs=new MutationObserver(hideSpotifyUI);
+  obs.observe(document.documentElement,{childList:true,subtree:true,attributes:true});
+  addEventListener('DOMContentLoaded',hideSpotifyUI);
+  addEventListener('load',hideSpotifyUI);
+  setInterval(hideSpotifyUI,1500);
+})();
+</script>
+
 </body>
 </html>
