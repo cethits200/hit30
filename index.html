@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>HIT30 Definitivo V14.3</title>
+<title>HIT30 Definitivo V14.4</title>
 <meta name="theme-color" content="#aa151b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.3">
+<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.4">
 <link rel="apple-touch-icon" href="hit30-final-192.png?v=12">
 <style>
 :root{
@@ -110,6 +110,16 @@ body{
   padding-left:env(safe-area-inset-left);
 }
 
+
+.failCardBtn{
+  margin-top:8px;
+  border-color:rgba(255,190,70,.42)!important;
+  background:rgba(255,160,30,.10)!important;
+  color:#ffd48a!important;
+  font-weight:850;
+}
+.failCardBtn:active{transform:scale(.985)}
+
 </style>
 </head>
 <body>
@@ -156,6 +166,7 @@ body{
    <button id="login" class="primary hidden">Conectar con Spotify</button>
    <button id="play" class="primary hidden">▶ Escuchar 30 segundos</button>
    <button id="pause" class="secondary hidden">■ Parar</button>
+   <button id="failCard" class="secondary failCardBtn">⚠️ Falla → Otra tarjeta</button>
    <div class="swipe">Toca la tarjeta para descubrir</div>
   </section>
   <section id="backFace" class="face back">
@@ -187,13 +198,13 @@ body{
 
 </div>
 
-<script src="catalogo-clasico.js?v=14.3"></script>
-<script src="catalogo-cine.js?v=14.3"></script>
-<script src="catalogo-latino.js?v=14.3"></script>
-<script src="catalogo-ot.js?v=14.3"></script>
-<script src="catalogo-verano.js?v=14.3"></script>
-<script src="catalogo-tv.js?v=14.3"></script>
-<script src="catalogo-espana.js?v=14.3"></script>
+<script src="catalogo-clasico.js?v=14.4"></script>
+<script src="catalogo-cine.js?v=14.4"></script>
+<script src="catalogo-latino.js?v=14.4"></script>
+<script src="catalogo-ot.js?v=14.4"></script>
+<script src="catalogo-verano.js?v=14.4"></script>
+<script src="catalogo-tv.js?v=14.4"></script>
+<script src="catalogo-espana.js?v=14.4"></script>
 <script>
 const CLIENT_ID="4473f3716282436ea5312f0aba46455b";
 const REDIRECT_URI=location.origin+location.pathname;
@@ -208,7 +219,7 @@ const modeGrid=$("modeGrid"), setupTitle=$("setupTitle"), setupSub=$("setupSub")
       decadeBtns=$("decadeBtns"), historyInfo=$("historyInfo"), p1=$("p1"), p2=$("p2"),
       pname0=$("pname0"), pname1=$("pname1"), pscore0=$("pscore0"), pscore1=$("pscore1"),
       pbox0=$("pbox0"), pbox1=$("pbox1"), turnLabel=$("turnLabel"),
-      card=$("card"), nextBtn=$("next"), pauseBtn=$("pause"), playBtn=$("play"),
+      card=$("card"), nextBtn=$("next"), pauseBtn=$("pause"), playBtn=$("play"), failCardBtn=$("failCard"),
       loginBtn=$("login"), timerEl=$("timer"), counter=$("counter"), cardNum=$("cardNum"),
       cover=$("cover"), bar=$("bar"), checks=$("checks"), answer1=$("answer1"),
       answer2=$("answer2"), answer3=$("answer3"), extraInfo=$("extraInfo"),
@@ -261,6 +272,9 @@ function buildDecades(){
  let all=document.createElement("button");all.textContent="Todas";all.onclick=()=>{yearFrom.value=mode.years[0];yearTo.value=mode.years[1];document.querySelectorAll("#decadeBtns button").forEach(x=>x.classList.remove("sel"));all.classList.add("sel")};decadeBtns.appendChild(all)
 }
 function historyKey(){return "hit30_history_"+modeKey}
+function failedKey(){return "hit30_failed_"+modeKey}
+function failedSet(){try{return new Set(JSON.parse(localStorage.getItem(failedKey())||"[]"))}catch(e){return new Set()}}
+function saveFailed(s){localStorage.setItem(failedKey(),JSON.stringify([...s]))}
 function usedSet(){try{return new Set(JSON.parse(localStorage.getItem(historyKey())||"[]"))}catch(e){return new Set()}}
 function saveUsed(s){localStorage.setItem(historyKey(),JSON.stringify([...s]));updateHistory()}
 function updateHistory(){let n=usedSet().size,max=TRACKS.length;historyInfo.textContent=`Utilizadas: ${n.toLocaleString("es-ES")} / ${max.toLocaleString("es-ES")}`}
@@ -271,11 +285,14 @@ function separate(items,gap=7){
  while(src.length){let idx=src.findIndex(x=>!recent.includes(artistKey(x)));if(idx<0)idx=0;let x=src.splice(idx,1)[0];out.push(x);recent.push(artistKey(x));if(recent.length>gap)recent.shift()}
  return out
 }
-function makeDeck(){
- let used=usedSet(),from=+yearFrom.value,to=+yearTo.value;
- let a=TRACKS.filter(t=>{let y=+(t.year??t.movie_year??t.summer_year??t.spain_year??0);return y>=from&&y<=to&&!used.has(t.id)});
+function eligibleTracks(){
+ let used=usedSet(),failed=failedSet(),from=+yearFrom.value,to=+yearTo.value;
+ let a=TRACKS.filter(t=>{let y=+(t.year??t.movie_year??t.summer_year??t.spain_year??0);return y>=from&&y<=to&&!used.has(t.id)&&!failed.has(t.id)});
  if(mode.origin&&!originField.classList.contains("hidden")&&originSelect.value!=="ALL") a=a.filter(t=>t.origin===originSelect.value);
- return separate(shuffle(a).slice(0,Math.min(gameSize,a.length)),7)
+ return a
+}
+function makeDeck(){
+ return separate(shuffle(eligibleTracks()).slice(0,Math.min(gameSize,eligibleTracks().length)),7)
 }
 function start(){
  deck=makeDeck();if(!deck.length){alert("No quedan tarjetas disponibles con esos filtros. Cambia el periodo o reinicia las tarjetas de esta modalidad.");return}
@@ -298,6 +315,27 @@ function nextCard(){
  applyScore();markCurrentUsed();
  if(pos+1>=total){finish();return}
  turn=1-turn;cur=deck[++pos];stopPlayback(true);renderCard()
+}
+async function replaceFailedCard(e){
+ if(e){e.preventDefault();e.stopPropagation()}
+ if(!cur)return;
+ await stopPlayback(true);
+ let failed=failedSet();
+ if(cur.id)failed.add(cur.id);
+ saveFailed(failed);
+
+ let inGame=new Set(deck.map(x=>x.id));
+ let candidates=eligibleTracks().filter(x=>!inGame.has(x.id));
+ if(!candidates.length){
+   statusEl.textContent="No hay otra tarjeta disponible con estos filtros.";
+   return;
+ }
+ let previousArtist=artistKey(cur);
+ let pick=shuffle(candidates).find(x=>artistKey(x)!==previousArtist) || shuffle(candidates)[0];
+ deck[pos]=pick;
+ cur=pick;
+ statusEl.textContent="Tarjeta sustituida. Mantienes el turno.";
+ renderCard();
 }
 function finish(){
  stopPlayback(true);let sorted=[...players].sort((a,b)=>b.score-a.score);let tie=sorted[0].score===sorted[1].score;
@@ -367,9 +405,9 @@ async function auth(){if(await token()){loginBtn.classList.add("hidden");playBtn
 
 goModes.onclick=()=>{renderModes();showOnly("modes")};goRanking.onclick=()=>{renderRanking();showOnly("ranking")};document.querySelectorAll(".backHome").forEach(b=>b.onclick=()=>{setTheme(MODES.clasico);showOnly("home")});backModes.onclick=()=>{renderModes();showOnly("modes")};
 sizeBtns.querySelectorAll("button").forEach(b=>b.onclick=()=>{gameSize=+b.dataset.size;sizeBtns.querySelectorAll("button").forEach(x=>x.classList.remove("sel"));b.classList.add("sel")});
-startGame.onclick=start;resetModeHistory.onclick=()=>{if(confirm(`¿Reiniciar las tarjetas utilizadas de HIT30 ${mode.name}?`)){localStorage.removeItem(historyKey());updateHistory()}};
+startGame.onclick=start;resetModeHistory.onclick=()=>{if(confirm(`¿Reiniciar las tarjetas utilizadas y las marcadas como fallidas de HIT30 ${mode.name}?`)){localStorage.removeItem(historyKey());localStorage.removeItem(failedKey());updateHistory()}};
 scene.onclick=e=>{if(e.target.closest("button,input,label,.checks"))return;flipCard()};backFace.addEventListener("click",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()});backFace.addEventListener("touchstart",e=>{if(e.target.closest(".checks,input,label"))e.stopPropagation()},{passive:true});
-loginBtn.onclick=loginSpotify;playBtn.onclick=play30;pauseBtn.onclick=e=>{e.stopPropagation();stopPlayback(false)};nextBtn.onclick=nextCard;quitGame.onclick=()=>{if(confirm("¿Salir de la partida? La tarjeta actual no contará como utilizada hasta pasar a la siguiente.")){stopPlayback(true);showOnly("setup")}};endHome.onclick=()=>{setTheme(MODES.clasico);showOnly("home")};rankMode.onchange=showRanking;
+loginBtn.onclick=loginSpotify;playBtn.onclick=play30;pauseBtn.onclick=e=>{e.stopPropagation();stopPlayback(false)};failCardBtn.onclick=replaceFailedCard;nextBtn.onclick=nextCard;quitGame.onclick=()=>{if(confirm("¿Salir de la partida? La tarjeta actual no contará como utilizada hasta pasar a la siguiente.")){stopPlayback(true);showOnly("setup")}};endHome.onclick=()=>{setTheme(MODES.clasico);showOnly("home")};rankMode.onchange=showRanking;
 
 (async()=>{
  if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).catch(()=>{});
