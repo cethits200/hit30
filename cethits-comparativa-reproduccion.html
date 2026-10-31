@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CetHits · Comparativa de reproducción</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#101827;color:#f6f7fb;font:16px system-ui,sans-serif;padding:20px;max-width:720px;margin:auto}
+h1{font-size:26px;color:#ffbd45}h2{font-size:19px}p{line-height:1.5}.panel{background:#202c3d;border-radius:14px;padding:16px;margin:15px 0}
+button{display:block;width:100%;border:0;border-radius:10px;padding:15px;margin:10px 0;background:#ffbd45;color:#161616;font-weight:750;font-size:16px}
+button:disabled{opacity:.45}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#2b394d;padding:15px;border-radius:10px;font:14px/1.65 ui-monospace,monospace}
+small{color:#bdc9da}.good{color:#89e4b5}.bad{color:#ffaaa8}
+</style></head><body>
+<h1>CetHits · Comparativa de reproducción</h1>
+<p>Esta página compara tres formas de iniciar <b>At Last — Etta James</b> en tu Spotify. <b>No envía órdenes de pausa</b> y no cambia el juego.</p>
+<div class="panel"><b>Antes de CADA botón:</b><p>1. Abre Spotify y reproduce cualquier canción.<br>2. Vuelve a esta página.<br>3. Pulsa un solo botón y espera unos 10 segundos a que termine.<br>4. Repite desde el paso 1 con el siguiente botón.</p></div>
+<button data-mode="zero">PRUEBA 1 · Desde el segundo 0</button>
+<button data-mode="middle">PRUEBA 2 · Desde el segundo 30</button>
+<button data-mode="omit">PRUEBA 3 · Sin indicar posición</button>
+<div class="panel"><h2>Resultados</h2><pre id="out">Esperando primera prueba…</pre><button id="copy">Copiar resultados</button></div>
+<small>No compartas contraseñas ni tokens. La página no cambia tarjetas, partidas ni puntuaciones. Si Spotify se detiene, vuelve a iniciarlo manualmente antes de la siguiente prueba.</small>
+<script>
+const CLIENT_ID='4473f3716282436ea5312f0aba46455b';
+const out=document.getElementById('out'), buttons=[...document.querySelectorAll('button[data-mode]')];
+let busy=false, history=[];
+function log(s){history.push(s);out.textContent=history.join('\n');}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+async function token(){
+ let at=localStorage.getItem('at');
+ if(at && Date.now()<Number(localStorage.getItem('exp')||0)-30000)return at;
+ const rt=localStorage.getItem('rt');if(!rt)throw Error('Sin autorización guardada. Abre primero CetHits y conecta Spotify.');
+ const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:rt,client_id:CLIENT_ID});
+ const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
+ const j=await r.json();if(!r.ok||!j.access_token)throw Error('No se pudo renovar Spotify. Abre CetHits y vuelve a conectar.');
+ localStorage.setItem('at',j.access_token);localStorage.setItem('exp',String(Date.now()+j.expires_in*1000));
+ if(j.refresh_token)localStorage.setItem('rt',j.refresh_token);
+ return j.access_token;
+}
+async function api(path,opts={}){
+ const t=await token();
+ let r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{'Authorization':'Bearer '+t,'Content-Type':'application/json'}});
+ if(r.status===401){localStorage.setItem('exp','0');const renewed=await token();r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{'Authorization':'Bearer '+renewed,'Content-Type':'application/json'}})}
+ let j={};const raw=await r.text();try{j=JSON.parse(raw)}catch(e){}
+ return {status:r.status,data:j,error:typeof j.error==='string'?j.error:j.error?.message||''};
+}
+async function state(label){
+ const r=await api('/me/player');
+ if(r.status===204){log(label+': HTTP 204 · SIN SESIÓN DE REPRODUCCIÓN');return}
+ if(r.status!==200){log(label+': HTTP '+r.status+' · '+r.error);return}
+ const j=r.data;log(label+': '+(j.is_playing?'REPRODUCIENDO':'DETENIDO')+' · '+(j.item?.name||'SIN CANCIÓN')+' · '+(j.progress_ms??0)+' ms · '+(j.device?.name||'sin dispositivo'));
+}
+async function test(mode){
+ if(busy)return;busy=true;buttons.forEach(b=>b.disabled=true);
+ const name={zero:'DESDE SEGUNDO 0',middle:'DESDE SEGUNDO 30',omit:'SIN POSICIÓN'}[mode];
+ log('\n========== '+name+' ==========');
+ try{
+  const dev=await api('/me/player/devices');
+  if(dev.status!==200)throw Error('Dispositivos HTTP '+dev.status+' '+dev.error);
+  const d=(dev.data.devices||[]).find(x=>x.is_active);
+  if(!d)throw Error('No hay dispositivo ACTIVO. Reproduce primero una canción desde Spotify.');
+  if(d.is_restricted)throw Error('Spotify marca el dispositivo como restringido.');
+  log('Dispositivo activo: '+d.name);
+  await state('ANTES');
+  const q=encodeURIComponent('track:At Last artist:Etta James');
+  const sr=await api('/search?type=track&limit=5&market=ES&q='+q);
+  if(sr.status!==200)throw Error('Búsqueda HTTP '+sr.status+' '+sr.error);
+  const t=sr.data.tracks?.items?.find(x=>x.name.toLowerCase()==='at last'&&x.artists?.some(a=>a.name.toLowerCase().includes('etta james')))||sr.data.tracks?.items?.[0];
+  if(!t?.uri)throw Error('No se encontró la canción.');
+  log('Canción: '+t.name+' — '+t.artists.map(a=>a.name).join(', ')+' · '+t.duration_ms+' ms');
+  const payload={uris:[t.uri]};
+  if(mode==='zero')payload.position_ms=0;
+  if(mode==='middle')payload.position_ms=30000;
+  const play=await api('/me/player/play?device_id='+encodeURIComponent(d.id),{method:'PUT',body:JSON.stringify(payload)});
+  log('ORDEN: HTTP '+play.status+(play.error?' · '+play.error:''));
+  if(play.status!==204)throw Error('Spotify rechazó la orden.');
+  await state('INMEDIATO');
+  await wait(2000);await state('A LOS 2 s');
+  await wait(3000);await state('A LOS 5 s');
+  await wait(5000);await state('A LOS 10 s');
+  log('FIN DE PRUEBA · No se envió pausa.');
+ }catch(e){log('ERROR: '+e.message)}
+ finally{busy=false;buttons.forEach(b=>b.disabled=false)}
+}
+buttons.forEach(b=>b.addEventListener('click',()=>test(b.dataset.mode)));
+document.getElementById('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(history.join('\n'));alert('Resultados copiados.')}catch(e){alert('Haz una captura de pantalla de los resultados.')}});
+</script></body></html>
