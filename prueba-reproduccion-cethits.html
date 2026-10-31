@@ -1,0 +1,25 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CetHits · Prueba de reproducción</title><style>body{background:#111827;color:#fff;font:17px system-ui;margin:0 auto;padding:24px;max-width:680px}h1{color:#ffb52b;font-size:27px}button{background:#ffb52b;color:#111;border:0;border-radius:12px;padding:15px;font-size:16px;font-weight:bold}pre{background:#293445;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;border-radius:10px;line-height:1.6}p{line-height:1.5}</style></head><body><h1>CetHits · Prueba de reproducción</h1><p>Abre Spotify en el móvil y deja una canción sonando. Después pulsa el botón. Esta prueba pide a Spotify que vuelva a reproducir <b>esa misma canción</b>; no modifica CetHits ni sus datos.</p><button id="go">Probar reproducción</button><pre id="result">Esperando prueba.</pre><p>No envíes contraseñas ni tokens. Puedes compartir una captura de los resultados.</p><script>
+const result=document.getElementById('result');let busy=false;
+function line(s){result.textContent+=s+'\n'}
+async function call(path,opts,token){let r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'}});let body=await r.text();let obj={};try{obj=JSON.parse(body)}catch(e){}return {status:r.status,obj}}
+document.getElementById('go').onclick=async()=>{if(busy)return;busy=true;result.textContent='';try{
+const token=localStorage.getItem('at'),expiry=Number(localStorage.getItem('exp')||0);
+if(!token){line('Sin autorización en este navegador. Abre CetHits y conecta Spotify.');return}
+if(Date.now()>=expiry){line('Token caducado. Abre CetHits para renovarlo y vuelve.');return}
+const devices=await call('/me/player/devices',{},token);line('Dispositivos: HTTP '+devices.status);
+if(devices.status!==200){line('Error: '+(devices.obj.error?.message||'sin detalles'));return}
+const device=(devices.obj.devices||[]).find(d=>d.is_active)||devices.obj.devices?.[0];
+if(!device){line('No hay dispositivos disponibles. Reproduce música en Spotify y repite.');return}
+line('Dispositivo: '+device.name+' | activo: '+device.is_active+' | restringido: '+device.is_restricted);
+const current=await call('/me/player',{},token);line('Reproductor: HTTP '+current.status);
+if(current.status!==200||!current.obj.item?.uri){line('No hay canción actual disponible para la prueba.');return}
+line('Canción actual: '+current.obj.item.name+' — '+(current.obj.item.artists||[]).map(x=>x.name).join(', '));
+const uri=current.obj.item.uri;
+if(!uri.startsWith('spotify:track:')){line('La canción actual no es una pista de Spotify; elige una canción normal.');return}
+const position=Math.max(0,current.obj.progress_ms||0);
+const res=await call('/me/player/play?device_id='+encodeURIComponent(device.id),{method:'PUT',body:JSON.stringify({uris:[uri],position_ms:position})},token);
+line('ORDEN DE REPRODUCCIÓN: HTTP '+res.status);
+if(res.status===204)line('Spotify ha aceptado la orden. Si CetHits sigue fallando, hay que comprobar la búsqueda de pistas y el código del juego.');
+else line('ERROR DE SPOTIFY: '+(res.obj.error?.message||res.obj.error||'sin detalles'));
+}catch(e){line('Error de red o navegador: '+e.message)}finally{busy=false}};
+</script></body></html>
