@@ -1,0 +1,52 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CetHits · Transferencia Spotify Connect</title>
+<style>:root{color-scheme:dark}*{box-sizing:border-box}body{background:#101827;color:#f5f6fa;font:16px system-ui;margin:0 auto;padding:18px;max-width:680px}h1{color:#ffbf50;font-size:25px}p{line-height:1.5}.panel{background:#233044;padding:15px;border-radius:13px;margin:14px 0}button{background:#ffbf50;border:0;border-radius:9px;padding:15px;width:100%;font-size:16px;font-weight:bold;color:#151515;margin:8px 0}button:disabled{opacity:.5}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#152034;padding:12px;border-radius:9px;line-height:1.6}small{color:#c5cfde}</style></head><body>
+<h1>CetHits · Prueba de transferencia</h1>
+<p>Esta prueba activa primero el dispositivo mediante Spotify Connect y después solicita reproducir <b>At Last — Etta James</b>. No envía ninguna orden de pausa.</p>
+<div class="panel"><b>Preparación:</b> Abre Spotify en el Samsung y reproduce una canción. Sin detenerla, vuelve a esta página y pulsa el botón. Espera 10 segundos.</div>
+<button id="go">Activar dispositivo y reproducir</button>
+<div class="panel"><b>Resultado:</b><pre id="out">Esperando prueba…</pre><button id="copy">Copiar resultado</button></div>
+<small>Esta prueba no modifica CetHits ni sus catálogos. Puede cambiar la canción que está sonando en Spotify.</small>
+<script>
+const CID='4473f3716282436ea5312f0aba46455b', out=document.querySelector('#out');let lines=[],running=false;
+function log(s){lines.push(s);out.textContent=lines.join('\n')}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function token(){
+let t=localStorage.getItem('at');if(t&&Date.now()<Number(localStorage.getItem('exp')||0)-30000)return t;
+const rt=localStorage.getItem('rt');if(!rt)throw Error('No hay autorización. Abre CetHits y conecta Spotify primero.');
+const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'refresh_token',refresh_token:rt,client_id:CID})});
+const j=await r.json();if(!r.ok||!j.access_token)throw Error('No se pudo renovar la autorización. Reconecta Spotify desde CetHits.');
+localStorage.setItem('at',j.access_token);localStorage.setItem('exp',String(Date.now()+j.expires_in*1000));if(j.refresh_token)localStorage.setItem('rt',j.refresh_token);return j.access_token;
+}
+async function api(path,opts={}){
+let t=await token();let r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}});
+if(r.status===401){localStorage.setItem('exp','0');t=await token();r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}})}
+const raw=await r.text();let j={};try{j=JSON.parse(raw)}catch(e){}
+return {status:r.status,data:j,error:j.error?.message||j.error||''}
+}
+async function state(label){let r=await api('/me/player');if(r.status===204){log(label+': SIN REPRODUCTOR (HTTP 204)');return}if(r.status!==200){log(label+': HTTP '+r.status+' '+r.error);return}
+let j=r.data;log(label+': '+(j.is_playing?'REPRODUCIENDO':'DETENIDO')+' · '+(j.item?.name||'sin canción')+' · dispositivo '+(j.device?.name||'desconocido'))}
+async function run(){if(running)return;running=true;document.querySelector('#go').disabled=true;lines=[];log('INICIO');
+try{
+const d=await api('/me/player/devices');if(d.status!==200)throw Error('Dispositivos HTTP '+d.status+' '+d.error);
+const devices=d.data.devices||[],dev=devices.find(x=>x.is_active)||devices.find(x=>!x.is_restricted);
+if(!dev)throw Error('No se encontró dispositivo. Reproduce una canción en Spotify antes de comenzar.');
+log('Dispositivo elegido: '+dev.name+' · activo='+dev.is_active+' · restringido='+dev.is_restricted);
+await state('ANTES');
+const transfer=await api('/me/player',{method:'PUT',body:JSON.stringify({device_ids:[dev.id],play:true})});
+log('TRANSFERENCIA: HTTP '+transfer.status+(transfer.error?' · '+transfer.error:''));
+if(transfer.status!==204)throw Error('Spotify rechazó la transferencia.');
+await wait(1500);await state('TRAS TRANSFERENCIA (1,5 s)');
+const sr=await api('/search?type=track&limit=5&market=ES&q='+encodeURIComponent('track:At Last artist:Etta James'));
+if(sr.status!==200)throw Error('Búsqueda HTTP '+sr.status+' '+sr.error);
+const track=sr.data.tracks?.items?.find(x=>x.name.toLowerCase()==='at last'&&x.artists?.some(a=>a.name.toLowerCase().includes('etta james')))||sr.data.tracks?.items?.[0];
+if(!track?.uri)throw Error('No se encontró At Last');
+log('Canción solicitada: '+track.name+' — '+track.artists.map(a=>a.name).join(', '));
+const play=await api('/me/player/play?device_id='+encodeURIComponent(dev.id),{method:'PUT',body:JSON.stringify({uris:[track.uri]})});
+log('REPRODUCCIÓN: HTTP '+play.status+(play.error?' · '+play.error:''));
+if(play.status!==204)throw Error('Spotify rechazó la reproducción.');
+await state('INMEDIATO');await wait(2000);await state('A LOS 2 s');await wait(3000);await state('A LOS 5 s');await wait(5000);await state('A LOS 10 s');
+log('FIN · No se envió pausa.');
+}catch(e){log('ERROR: '+e.message)}finally{running=false;document.querySelector('#go').disabled=false}}
+document.querySelector('#go').onclick=run;
+document.querySelector('#copy').onclick=async()=>{try{await navigator.clipboard.writeText(lines.join('\n'));alert('Resultado copiado')}catch(e){alert('Envía una captura de pantalla')}};
+</script></body></html>
