@@ -1,0 +1,25 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CetHits · Prueba real</title><style>body{font:16px system-ui;background:#101827;color:#fff;max-width:690px;margin:auto;padding:22px}h1{color:#ffb52b}button,select{font:inherit;border:0;border-radius:9px;padding:12px;margin:5px 0}button{background:#ffb52b;color:#161616;font-weight:700}select{max-width:100%;width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#283446;padding:16px;border-radius:10px;line-height:1.5}.hint{color:#ccd4e2}</style></head><body><h1>CetHits · Prueba real de tarjetas</h1><p>Prueba una canción del catálogo original sin cambiar tu juego. Abre Spotify y deja una canción sonando antes de comenzar.</p><label>Catálogo</label><select id="cat"><option value="clasico">Clásico</option><option value="cine">Cine</option><option value="latino">Latino</option><option value="ot">OT</option><option value="verano">Verano</option><option value="tv">TV</option><option value="espana">España</option></select><p><button id="test">Probar una tarjeta durante 30 segundos</button> <button id="stop">Detener</button></p><pre id="out">Esperando prueba.</pre><p class="hint">El resultado mostrará la pista y el error exacto, si lo hay. Esta página no cambia las partidas ni el historial.</p>
+<script src="catalogo-clasico.js"></script><script src="catalogo-cine.js"></script><script src="catalogo-latino.js"></script><script src="catalogo-ot.js"></script><script src="catalogo-verano.js"></script><script src="catalogo-tv.js"></script><script src="catalogo-espana.js"></script>
+<script>
+const catalogs={clasico:'HIT30_CATALOG',cine:'HIT30_CINE',latino:'HIT30_LATINO',ot:'HIT30_OT',verano:'HIT30_VERANO',tv:'HIT30_TV',espana:'HIT30_ESPANA'};
+let timer=null,deviceId=null,busy=false;const out=document.getElementById('out');function log(s){out.textContent+=s+'\n'}
+async function api(path,opts={}){const t=localStorage.getItem('at');if(!t)throw Error('No hay sesión de Spotify en este navegador. Conéctala desde el juego.');const r=await fetch('https://api.spotify.com/v1'+path,{...opts,headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'}});const raw=await r.text();let obj={};try{obj=JSON.parse(raw)}catch(e){}if(!r.ok)throw Error('HTTP '+r.status+' en '+path.split('?')[0]+': '+(obj.error?.message||obj.error||raw.slice(0,120)||'sin detalles'));return {status:r.status,data:obj}}
+async function stop(){clearTimeout(timer);timer=null;try{const r=await api('/me/player/pause',{method:'PUT'});log('Pausa: HTTP '+r.status)}catch(e){log('Pausa: '+e.message)}}
+document.getElementById('stop').onclick=stop;
+document.getElementById('test').onclick=async()=>{if(busy)return;busy=true;clearTimeout(timer);out.textContent='';try{
+const arr=window[catalogs[document.getElementById('cat').value]]||[];log('Entradas del catálogo: '+arr.length);if(!arr.length)throw Error('El catálogo no se ha cargado.');
+const d=(await api('/me/player/devices')).data.devices||[];const device=d.find(x=>x.is_active)||d[0];if(!device)throw Error('Spotify no detecta un dispositivo. Pon música en el móvil y vuelve.');deviceId=device.id;log('Dispositivo: '+device.name+' (activo: '+device.is_active+')');
+let track=null,uri=null,duration=0;
+for(let i=0;i<Math.min(arr.length,12);i++){const item=arr[i];log('Tarjeta '+(i+1)+': '+(item.title||'sin título')+' — '+(item.artist||item.performer||''));try{
+if(item.uri?.startsWith('spotify:track:')){uri=item.uri;duration=item.duration||180000}
+else if(item.spotify_id){const x=(await api('/tracks/'+encodeURIComponent(item.spotify_id)+'?market=ES')).data;if(!x.uri)throw Error('Respuesta sin URI');uri=x.uri;duration=x.duration_ms||180000}
+else{const q='track:'+(item.title||'')+' artist:'+(item.artist||item.performer||'');const x=(await api('/search?type=track&limit=5&market=ES&q='+encodeURIComponent(q))).data.tracks?.items?.[0];if(!x)throw Error('Búsqueda sin resultados');uri=x.uri;duration=x.duration_ms||180000}
+track=item;break
+}catch(e){log('Error de esta tarjeta: '+e.message)}
+}
+if(!track||!uri)throw Error('No se pudo identificar ninguna de las primeras 12 tarjetas.');
+const margin=8000,clip=30000,max=Math.max(margin,duration-clip-margin),start=duration>clip+margin*2?Math.floor(margin+Math.random()*(max-margin)):0;
+log('URI identificada: Sí');log('Duración (ms): '+duration+' | inicio (ms): '+start);
+const r=await api('/me/player/play?device_id='+encodeURIComponent(deviceId),{method:'PUT',body:JSON.stringify({uris:[uri],position_ms:start})});log('REPRODUCCIÓN: HTTP '+r.status);log('Spotify ha aceptado la orden. Se detendrá en 30 segundos.');timer=setTimeout(()=>stop(),30000);
+}catch(e){log('FALLO: '+e.message)}finally{busy=false}};
+</script></body></html>
