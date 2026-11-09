@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>HIT30 Definitivo V14.6</title>
+<title>HIT30 Definitivo V14.7</title>
 <meta name="theme-color" content="#aa151b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.6">
+<link rel="manifest" href="manifest-v14.3.webmanifest?v=14.7">
 <link rel="apple-touch-icon" href="hit30-final-192.png?v=12">
 <style>
 :root{
@@ -359,6 +359,7 @@ function makeDeck(){
  const eligible=eligibleTracks();return buildVariedDeck(eligible,Math.min(gameSize,eligible.length))
 }
 function start(){
+ invalidatePlayback();
  deck=makeDeck();if(!deck.length){alert("No quedan tarjetas disponibles con esos filtros. Cambia el periodo o reinicia las tarjetas de esta modalidad.");return}
  total=deck.length;pos=0;cur=deck[0];turn=0;players=[{name:p1.value.trim()||"Jugador 1",score:0,a:0,b:0,c:0},{name:p2.value.trim()||"Jugador 2",score:0,a:0,b:0,c:0}];renderCard();showOnly("game")
 }
@@ -366,6 +367,7 @@ function markCurrentUsed(){let s=usedSet();if(cur?.id&&!s.has(cur.id)){s.add(cur
 function renderScore(){pname0.textContent=players[0].name;pname1.textContent=players[1].name;pscore0.textContent=players[0].score;pscore1.textContent=players[1].score;pbox0.classList.toggle("active",turn===0);pbox1.classList.toggle("active",turn===1);turnLabel.textContent=`Turno de ${players[turn].name}`}
 function val(obj,key){return obj?.[key]??""}
 function renderCard(){
+ resetClipUI();
  card.classList.remove("flip");nextBtn.classList.add("hidden");pauseBtn.classList.add("hidden");timerEl.textContent=30;counter.textContent=`${pos+1} / ${total}`;cardNum.textContent=`Tarjeta ${pos+1}`;cover.removeAttribute("src");cover.style.display="none";bar.style.width=`${((pos+1)/total)*100}%`;renderScore();buildChecks();auth();loadMeta()
 }
 function buildChecks(){
@@ -375,10 +377,11 @@ function applyScore(){
  [...checks.querySelectorAll("input")].forEach((x,i)=>{if(x.checked){players[turn].score++;if(i===0)players[turn].a++;if(i===1)players[turn].b++;if(i===2)players[turn].c++}})
 }
 function flipCard(){if(Date.now()<block)return;card.classList.toggle("flip");if(card.classList.contains("flip"))nextBtn.classList.remove("hidden")}
-function nextCard(){
+async function nextCard(){
+ await stopPlayback(true);
  applyScore();markCurrentUsed();
  if(pos+1>=total){finish();return}
- turn=1-turn;cur=deck[++pos];stopPlayback(true);renderCard()
+ turn=1-turn;cur=deck[++pos];renderCard()
 }
 async function replaceFailedCard(e){
  if(e){e.preventDefault();e.stopPropagation()}
@@ -446,34 +449,138 @@ async function refresh(){if(!localStorage.rt)return false;let b=new URLSearchPar
 async function token(){if(Date.now()<+(localStorage.exp||0)-30000)return localStorage.at;if(await refresh())return localStorage.at;return null}
 async function api(p,o={}){let t=await token();if(!t)throw Error("LOGIN");let r=await fetch("https://api.spotify.com/v1"+p,{...o,headers:{Authorization:"Bearer "+t,"Content-Type":"application/json",...(o.headers||{})}});if(r.status===401&&await refresh())return api(p,o);return r}
 async function device(){let r=await api("/me/player/devices");if(!r.ok)return null;let d=(await r.json()).devices||[];return d.find(x=>x.is_active)||d[0]||null}
-async function resolve(){
- if(cur.uri&&cur.album_uri)return cur.uri;
- let id=cur.spotify_id||(cur.uri?.startsWith("spotify:track:")?cur.uri.split(":")[2]:null);
- let q=`track:${cur.title||""} artist:${cur.artist||cur.performer||""}`;
+// V14.7: un solo flujo de órdenes Spotify y una sola sesión de 30 segundos.
+let playbackGeneration=0, playbackBusy=false, playbackActive=false;
+let spotifyQueue=Promise.resolve(), playbackDeadline=0;
+const waitSpotify=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function queueSpotify(job){
+ const task=spotifyQueue.catch(()=>{}).then(job);
+ spotifyQueue=task.catch(()=>{});
+ return task;
+}
+function clearClipClock(){
+ clearTimeout(st);clearInterval(it);st=null;it=null;playbackDeadline=0;
+}
+function resetClipUI(){
+ clearClipClock();timerEl.textContent=30;
+ pauseBtn.classList.add("hidden");playBtn.classList.remove("hidden");
+}
+function invalidatePlayback(){
+ playbackGeneration++;
+ clearClipClock();
+ playbackBusy=false;playbackActive=false;
+ playBtn.disabled=false;
+}
+async function resolve(track=cur){
+ if(track.uri&&track.album_uri)return track.uri;
+ let id=track.spotify_id||(track.uri?.startsWith("spotify:track:")?track.uri.split(":")[2]:null);
+ let q=`track:${track.title||""} artist:${track.artist||track.performer||""}`;
  let r=id?await api("/tracks/"+encodeURIComponent(id)+"?market=ES"):await api("/search?type=track&limit=5&market=ES&q="+encodeURIComponent(q));
  if(!r.ok)throw Error("TRACK_HTTP_"+r.status);
  let data=await r.json(),x=id?data:data.tracks?.items?.[0];
  if(!x?.uri||!x.album?.uri)throw Error("NF");
- cur.uri=x.uri;cur.album_uri=x.album.uri;cur.duration=x.duration_ms||0;cur.cover=x.album?.images?.[0]?.url||"";
- return cur.uri
+ track.uri=x.uri;track.album_uri=x.album.uri;track.duration=x.duration_ms||0;track.cover=x.album?.images?.[0]?.url||"";
+ return track.uri;
 }
 async function loadMeta(){
- answer1.textContent=val(cur,mode.answers[0])||cur.title||"";
- answer2.textContent=val(cur,mode.answers[1])||cur.artist||"";
- answer3.textContent=val(cur,mode.answers[2])||cur.year||"";
- extraInfo.textContent=cur.composer||cur.performer||"";
- try{await resolve();if(cur.cover){cover.src=cur.cover;cover.style.display="block"}}catch(e){}
+ const track=cur;
+ answer1.textContent=val(track,mode.answers[0])||track.title||"";
+ answer2.textContent=val(track,mode.answers[1])||track.artist||"";
+ answer3.textContent=val(track,mode.answers[2])||track.year||"";
+ extraInfo.textContent=track.composer||track.performer||"";
+ try{await resolve(track);if(cur===track&&track.cover){cover.src=track.cover;cover.style.display="block"}}catch(e){}
+}
+async function confirmSpotifyTrack(uri,generation){
+ // Spotify devuelve HTTP 204 antes de que el dispositivo empiece a sonar.
+ for(let i=0;i<9;i++){
+  if(generation!==playbackGeneration)return false;
+  await waitSpotify(650);
+  if(generation!==playbackGeneration)return false;
+  try{
+   const r=await api("/me/player");
+   if(r.ok){
+    const state=await r.json();
+    if(state?.is_playing&&state.item?.uri===uri)return true;
+   }
+  }catch(e){}
+ }
+ return false;
+}
+function startClipClock(generation){
+ if(generation!==playbackGeneration)return;
+ playbackActive=true;playbackBusy=false;playBtn.disabled=false;
+ playBtn.classList.add("hidden");pauseBtn.classList.remove("hidden");
+ statusEl.textContent="¡Escucha y adivina!";
+ playbackDeadline=Date.now()+30000;
+ const tick=()=>{
+  if(generation!==playbackGeneration)return;
+  timerEl.textContent=Math.max(0,Math.ceil((playbackDeadline-Date.now())/1000));
+ };
+ tick();it=setInterval(tick,200);
+ st=setTimeout(async()=>{
+  if(generation!==playbackGeneration)return;
+  await stopPlayback(true);
+  if(playbackGeneration===generation+1){
+   timerEl.textContent=0;
+   statusEl.textContent="Tiempo terminado. Descubre la respuesta.";
+  }
+ },30000);
 }
 async function play30(e){
  e?.stopPropagation();block=Date.now()+400;
+ if(playbackBusy||playbackActive)return;
+ const generation=++playbackGeneration,track=cur;
+ playbackBusy=true;playBtn.disabled=true;
+ statusEl.textContent="Preparando Spotify…";
  try{
-  let d=await device();if(!d){statusEl.textContent="Abre Spotify, reproduce cualquier canción unos segundos y vuelve.";return}
-  let uri=await resolve(),dur=cur.duration||180000,clip=30000,margin=8000,max=Math.max(margin,dur-clip-margin),start=dur>clip+margin*2?Math.floor(margin+Math.random()*(max-margin)):0;
-  let r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{method:"PUT",body:JSON.stringify({context_uri:cur.album_uri,offset:{uri:uri},position_ms:start})});if(!r.ok){statusEl.textContent="Spotify no pudo iniciar la pista.";return}
-  playBtn.classList.add("hidden");pauseBtn.classList.remove("hidden");let n=30;timerEl.textContent=n;statusEl.textContent="¡Escucha y adivina!";it=setInterval(()=>timerEl.textContent=Math.max(0,--n),1000);st=setTimeout(async()=>{await stopPlayback(true);playBtn.classList.remove("hidden");statusEl.textContent="Tiempo terminado. Descubre la respuesta."},30000)
- }catch(e){if(e.message==="LOGIN")auth();else statusEl.textContent="No se pudo reproducir esta tarjeta."}
+  const d=await device();
+  if(generation!==playbackGeneration)return;
+  if(!d){statusEl.textContent="Abre Spotify, reproduce cualquier canción unos segundos y vuelve.";return;}
+  const uri=await resolve(track);
+  if(generation!==playbackGeneration)return;
+  const dur=track.duration||180000,clip=30000,margin=8000;
+  const max=Math.max(margin,dur-clip-margin);
+  const start=dur>clip+margin*2?Math.floor(margin+Math.random()*(max-margin)):0;
+  const started=await queueSpotify(async()=>{
+   if(generation!==playbackGeneration)return false;
+   const r=await api("/me/player/play?device_id="+encodeURIComponent(d.id),{
+    method:"PUT",body:JSON.stringify({context_uri:track.album_uri,offset:{uri},position_ms:start})
+   });
+   if(!r.ok)throw Error("PLAY_HTTP_"+r.status);
+   return true;
+  });
+  if(!started||generation!==playbackGeneration)return;
+  statusEl.textContent="Esperando a que Spotify comience…";
+  const confirmed=await confirmSpotifyTrack(uri,generation);
+  if(generation!==playbackGeneration)return;
+  if(!confirmed){
+   statusEl.textContent="Spotify no confirmó la reproducción. Pulsa de nuevo para reintentar.";
+   await stopPlayback(true);
+   return;
+  }
+  startClipClock(generation);
+ }catch(err){
+  if(generation!==playbackGeneration)return;
+  if(err.message==="LOGIN")auth();
+  else statusEl.textContent="No se pudo reproducir. Comprueba Spotify y vuelve a intentar.";
+ }finally{
+  if(generation===playbackGeneration&&!playbackActive){playbackBusy=false;playBtn.disabled=false;}
+ }
 }
-async function stopPlayback(silent=false){clearTimeout(st);clearInterval(it);try{if(await token())await api("/me/player/pause",{method:"PUT"})}catch(e){}timerEl.textContent=30;pauseBtn.classList.add("hidden");if(!silent){playBtn.classList.remove("hidden");statusEl.textContent="Reproducción detenida."}}
+async function stopPlayback(silent=false){
+ const shouldPause=playbackBusy||playbackActive;
+ invalidatePlayback();
+ const generation=playbackGeneration;
+ resetClipUI();
+ if(!silent)statusEl.textContent="Reproducción detenida.";
+ if(shouldPause){
+  await queueSpotify(async()=>{
+   // La pausa nunca puede ejecutarse después de una nueva reproducción.
+   if(generation!==playbackGeneration)return;
+   try{if(await token())await api("/me/player/pause",{method:"PUT"})}catch(e){}
+  });
+ }
+}
 async function auth(){if(await token()){loginBtn.classList.add("hidden");playBtn.classList.remove("hidden");statusEl.textContent="Tarjeta lista."}else{playBtn.classList.add("hidden");loginBtn.classList.remove("hidden");statusEl.textContent="Conecta Spotify para jugar."}}
 
 goModes.onclick=()=>{renderModes();showOnly("modes")};goRanking.onclick=()=>{renderRanking();showOnly("ranking")};document.querySelectorAll(".backHome").forEach(b=>b.onclick=()=>{setTheme(MODES.clasico);showOnly("home")});backModes.onclick=()=>{renderModes();showOnly("modes")};
